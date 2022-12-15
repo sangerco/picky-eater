@@ -126,6 +126,10 @@ class Favorite_recipe:
                         db.Integer, 
                         db.ForeignKey('user_profiles.id', ondelete='cascade')
                         )
+    user_id = db.Column(
+                    db.Integer,
+                    db.ForeignKey('users.id', ondelete='cascade')
+                    )
     api_recipe_id = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text)
     stars = db.Column(db.Integer, default=None)

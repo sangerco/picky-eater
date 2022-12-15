@@ -111,3 +111,21 @@ def general_users_page():
     users = User.query.all()
 
     return render_template('users.html', users=users)
+
+@app.route('/users/<int:user_id>')
+def user_page(user_id):
+    """ display individual users page """
+
+    if g.user:
+    
+        user = User.query.get_or_404(user_id)
+        user_profile = User_profile.query.filter_by(user_id=user_id)
+        child_profiles = Child_profile.query.filter_by(user_id=user_id)
+        favorite_recipes = Favorite_recipe.query.filter_by(user_id=user_id)
+
+        return render_template('user-info.html', 
+                    user=user, user_profile=user_profile, 
+                    child_profiles=child_profiles, favorite_recipes=favorite_recipes)
+    else:
+        return redirect('/')
+
