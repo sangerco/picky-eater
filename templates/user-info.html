@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block content%}
+
+<div class="col-3">
+    <img src="{{ user.image }}" class="rounded float-start" alt="{{ user.username }}" width="200px" height="auto">
+</div>
+<div class="row full-width">
+    <div class="container">
+        <div class="row justify-content-end">
+            <div class="col-9">
+                <div class="float-right">
+                    {% if g.user.id == user.id %}
+                    <a href="/users/{{ user.id }}" class="user-btn btn btn-outline-primary">Edit Account</a>
+                    <form action="POST" action="/users/delete" class="form-inline">
+                        <button class="user-btn btn btn-outline-danger">Delete Account</button>
+                    </form>
+                    {% elif g.user %}
+                    {% if g.user.is_following(user) %}
+                    <form method="POST" action="/users/unfollow/{{ user.id }}">
+                        <button class="btn btn-primary">Stop Following</button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="/users/follow/{{ user.id }}">
+                        <button class="btn btn-primary">Follow</button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3">
+        <p class="display-6">{{ user.username }}</p>
+        <ul>
+            <li>
+                <a href="/users/{{ user.id }}/profile">{{ user.username }}'s Profile</a>
+            </li>
+            <ul>
+                {% for cp in child_profiles %}
+                <li>
+                    <a href="/users/{{ cp.user_id }}/profiles/{{ cp.id }}">{{ cp.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </ul>
+    </div>
+    <div class="col-9">
+        <ul>
+            {% for fr in favorite_recipes %}
+            <a href="/recipes/{{ fr.id }}"><span class="fs-4">Favorite recipe</span></a>
+            <p class="fs-5 text-success">{{ fr.rating }}</p>
+            <p class="fs-5">{{ fr.review }}</p>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

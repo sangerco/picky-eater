@@ -11,7 +11,7 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
 
-class Follows:
+class Follows(db.Model):
     """ provide table for potential friends """
 
     __tablename__ = "follows"
@@ -49,7 +49,7 @@ class User(db.Model):
     )
 
     @classmethod
-    def register_user(cls, username, first_name, last_name, email, password):
+    def register_user(cls, username, first_name, last_name, email, password, image):
         """ register user with hashed password """
 
         hashed_password = bcrypt.generate_password_hash(password)
@@ -57,7 +57,7 @@ class User(db.Model):
         hashed_utf8 = hashed_password.decode("utf8")
 
         return cls(username=username, first_name=first_name, 
-                    last_name=last_name, email=email, password=hashed_utf8)
+                    last_name=last_name, email=email, password=hashed_utf8, image=image)
 
     @classmethod
     def authenticate_user(cls, username, password):
@@ -85,7 +85,7 @@ class User(db.Model):
         return len(following_list) == 1
 
 
-class User_profile:
+class User_profile(db.Model):
     """ generate table for user likes and dislikes """
 
     __tablename__ = 'user_profiles'
@@ -98,7 +98,7 @@ class User_profile:
     diet = db.Column(db.Text, default=None)
 
 
-class Child_profile:
+class Child_profile(db.Model):
     """ generate table for profiles that are children of user profile """
 
     __tablename__ = 'child_profiles'
@@ -116,7 +116,7 @@ class Child_profile:
 
     users = db.relationship('User_profile', backref='users')
 
-class Favorite_recipe:
+class Favorite_recipe(db.Model):
     """ provide table for user's favorite recipes """
 
     __tablename__ = 'favorite_recipes'
@@ -132,10 +132,10 @@ class Favorite_recipe:
                     )
     api_recipe_id = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text)
-    stars = db.Column(db.Integer, default=None)
+    rating = db.Column(db.Integer, default=None)
 
 
-class Shopping_list:
+class Shopping_list(db.Model):
     """ provide table for shopping list """
 
     __tablename__ = 'shopping_lists'
@@ -147,3 +147,11 @@ class Shopping_list:
                         )
     api_shopping_list_id = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text)
+
+class Diet(db.Model):
+    ''' simple table for diet select field on profiles pages '''
+
+    __tablename__ = 'diets'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    diet = db.Column(db.Text)

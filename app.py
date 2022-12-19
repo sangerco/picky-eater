@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, User_profile, Child_profile
-from models import Favorite_recipe, Follows, Shopping_list
-from forms import NewUserForm, LoginForm
+from models import Favorite_recipe, Follows, Shopping_list, Diet
+from forms import NewUserForm, LoginForm, UserProfileForm
 from sqlalchemy.exc import IntegrityError
 
 CURR_USER_KEY = 'curr_user'
@@ -35,7 +35,7 @@ def do_login(user):
 
     session[CURR_USER_KEY] = user.id
 
-def do_logout(user):
+def do_logout():
     """ Logout user """
 
     if CURR_USER_KEY in session:
@@ -65,8 +65,9 @@ def signup_user():
         username = form.username.data
         password = form.password.data
         email = form.email.data
+        image = form.image.data
 
-        new_user = User.register_user(first_name, last_name, username, password, email)
+        new_user = User.register_user(first_name, last_name, username, password, email, image)
 
         db.session.add(new_user)
 
@@ -104,6 +105,13 @@ def login_user():
             form.username.errors = ['Invalid username/password.']
     return render_template('login.html', form=form)
 
+@app.route('/logout')
+def logout_user():
+    """ log out user and redirect to start page """
+
+    do_logout()
+    return redirect('/')
+
 @app.route('/users')
 def general_users_page():
     """ display other users with functionality to go to other user's pages """
@@ -116,16 +124,57 @@ def general_users_page():
 def user_page(user_id):
     """ display individual users page """
 
-    if g.user:
-    
-        user = User.query.get_or_404(user_id)
-        user_profile = User_profile.query.filter_by(user_id=user_id)
-        child_profiles = Child_profile.query.filter_by(user_id=user_id)
-        favorite_recipes = Favorite_recipe.query.filter_by(user_id=user_id)
+    user = User.query.get_or_404(user_id)
+    user_profile = User_profile.query.filter_by(user_id = user_id).first()
+    child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
+    favorite_recipes = Favorite_recipe.query.filter(Favorite_recipe.user_id == user_id).all()
 
-        return render_template('user-info.html', 
-                    user=user, user_profile=user_profile, 
-                    child_profiles=child_profiles, favorite_recipes=favorite_recipes)
+    return render_template('user-info.html', 
+                user=user, user_profile=user_profile, 
+                child_profiles=child_profiles, favorite_recipes=favorite_recipes)
+
+
+@app.route('/users/<int:user_id>/profile', methods=['GET', 'POST'])
+def user_profile_page(user_id):
+    """ display user profile page """
+
+    user = User.query.get_or_404(user_id)
+    profile = User_profile.query.filter_by(user_id = user_id).first()
+    if profile:
+        child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
+
+        if profile.no_foods:
+            no_food_list = [nf for nf in profile.no_foods]
+        else:
+            no_food_list = [] 
+
+        if profile.yes_foods:
+            yes_food_list = [yf for yf in profile.yes_foods]
+        else:
+            yes_food_list = []
+
+        return render_template('user-profile.html', user=user, profile=profile,
+                    child_profiles=child_profiles, no_foods=no_food_list, 
+                    yes_foods=yes_food_list, diet=profile.diet)
+
     else:
-        return redirect('/')
+        form = UserProfileForm()
+        form.diet.choices = [(diet.id, diet.diet) for diet in Diet.query.all()]
+        print(form.diet.choices)
+        user = User.query.get_or_404(user_id)
+        if form.validate_on_submit():
+            no_foods = form.no_foods.data
+            yes_foods = form.yes_foods.data
+            diet = form.diet.data
 
+            new_profile = User_profile(no_foods=no_foods, yes_foods=yes_foods, diet=diet)
+            db.session.add(new_profile)
+            db.session.commit()
+            flash('Hooray! New profile added!', 'success')
+            return redirect(f'/users/{user_id}/profile')
+        
+    return render_template('user-profile.html', user=user, form=form)
+
+@app.route('/users/<int:user_id>/profile/add')
+def create_user_profile(user_id):
+    ''' render form to create user profile, redirect to user profile page '''

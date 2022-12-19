@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content%}
+
+<div class="container">
+    <img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto">
+    <div class="row justify-content-end">
+        <div class="col-md-2">
+            <div class="float-right">
+                {% if g.user.id == user.id %}
+                {% if profile %}
+                <div class="row">
+                    <a class="btn btn-primary btn-lg" href="/users/{{ user.id }}/profile/edit" role="button">Edit
+                        Profile</a>
+                </div>
+                <div class="row">
+                    <a class="btn btn-success btn-lg" href="/profiles/{{ profile.id }}/child-profile/new"
+                        role="button">Create Child Profile</a>
+                </div>
+                {% endif %}
+                {% elif g.user %}
+                {% if g.user.is_following(user) %}
+                <div class="row">
+                    <form method="POST" action="/users/unfollow/{{ user.id }}">
+                        <button class="btn btn-danger btn-lg">Stop Following</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="row">
+                    <form method="POST" action="/users/follow/{{ user.id }}">
+                        <button class="btn btn-primary btn-lg">Follow</button>
+                    </form>
+                </div>
+                {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    {% if profile %}
+    <div class="row align-items-start">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <h1 class="display-5 fw-bold">{{ profile.owner }}'s Profile</h1>
+            <br>
+            {% if no_foods %}
+            <p class="display-6 fw-bold">{{ profile.owner }}'s No Thank You Foods</p>
+            <ul class="list-group list-group-flush">
+                {% for nf in no_foods %}
+                <li class="list-group-item">{{ nf }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if yes_foods %}
+            <p class="display-6 fw-bold">{{ profile.owner }}'s Yes Please Foods</p>
+            <ul class="list-group list-group-flush">
+                {% for yf in yes_foods %}
+                <li class="list-group-item">{{ yf }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if profile.diet %}
+            <p class="display-6 fw-bold">{{ profile.diet }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    {% if g.user == user %}
+    <div class="container">
+        <h1 class="display-1">Create Profile</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                {% for msg in get_flashed_messages() %}
+                <div class="bg-success text-light">{{ msg }}</div>
+                {% endfor %}
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    {% for field in form
+                    if field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                        {{ field.label }}
+                        {{ field(class="form-control") }}
+                        {% for err in field.errors %}
+                        <small class="form-text text-danger">
+                            {{ err }}
+                        </small>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <button class="btn btn-success btn-large">Go!</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}
