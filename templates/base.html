@@ -22,9 +22,11 @@
             </div>
             <div class="navbar-nav">
                 {% if not g.user %}
+                <li><a class="nav-link active" href="/users">View all users</a></li>
                 <li><a class='nav-link active' href="/signup">Sign up</a></li>
                 <li><a class='nav-link active' href="/login">Log in</a></li>
                 {% else %}
+                <li><a class="nav-link active" href="/users">View all users</a></li>
                 <li>
                     <a class='nav-link active' href="/users/{{ g.user.id }}">
                         <img src="{{ g.user.image }}" alt="{{ g.user.username }}" width="50px" height="auto">

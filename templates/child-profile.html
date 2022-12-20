@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 
-{% block title %}{{ user.username }}'s Profile{% endblock %}
+{% block title %}{{ profile.name }}{% endblock %}
 
 {% block content%}
 
@@ -10,17 +10,22 @@
     <div class="row justify-content-end">
         <div class="col-md-2">
             <div class="float-right">
+                <div class="row">
+                    <a href="/users/{{ user.id }}" class="user-btn btn btn-secondary btn-lg">Go Back</a>
+                </div>
+                <div class="row">
+                    <a href="/users" class="user-btn btn btn-primary btn-lg">View All Users</a>
+                </div>
                 {% if g.user.id == user.id %}
-                <a class="user-btn btn btn-secondary btn-lg" href="/users/{{ user.id }}" role="button">Go Back</a>
                 {% if profile %}
                 <div class="row">
-                    <a class="user-btn btn btn-primary btn-lg" href="/users/{{ user.id }}/profile/edit"
+                    <a class="user-btn btn btn-success btn-lg" href="/profiles/child/{{ profile.id }}/edit"
                         role="button">Edit
                         Profile</a>
                 </div>
                 <div class="row">
-                    <a class="user-btn btn btn-success btn-lg" href="/users/{{ profile.id }}/child-profile/new"
-                        role="button">Create Child Profile</a>
+                    <a class="user-btn btn btn-outline-danger btn-lg" href="/profiles/child/{{ profile.id }}/delete"
+                        role="button">Delete Profile</a>
                 </div>
                 {% endif %}
                 {% elif g.user %}
@@ -42,14 +47,13 @@
             </div>
         </div>
     </div>
-    {% if profile %}
     <div class="row align-items-start">
         <div class="col-2"></div>
         <div class="col-8">
-            <h1 class="display-5"><strong>{{ profile.owner }}'s Profile</strong></h1>
+            <h1 class="display-5"><strong>{{ profile.name }}</strong></h1>
             <br>
             {% if no_foods %}
-            <p><strong>{{ profile.owner }}'s No Thank You Foods</strong></p>
+            <p><strong>No Thank You Foods</strong></p>
             <ul class="list-group list-group-flush">
                 {% for nf in no_foods %}
                 <li class="list-group-item">{{ nf }}</li>
@@ -57,7 +61,7 @@
             </ul>
             {% endif %}
             {% if yes_foods %}
-            <p class=><strong>{{ profile.owner }}'s Yes Please Foods</strong></p>
+            <p class=><strong>Yes Please Foods</strong></p>
             <ul class="list-group list-group-flush">
                 {% for yf in yes_foods %}
                 <li class="list-group-item">{{ yf }}</li>
@@ -65,40 +69,10 @@
             </ul>
             {% endif %}
             {% if profile.diet_id %}
-            <p class=><strong>{{ user.username }}'s diet:</strong> {{ profile.diet_name }}</p>
+            <p class=><strong>Diet:</strong> {{ profile.diet_name }}</p>
             {% endif %}
         </div>
     </div>
-    {% else %}
-    {% if g.user == user %}
-    <div class="container">
-        <h1 class="display-1">Create Profile</h1>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                {% for msg in get_flashed_messages() %}
-                <div class="bg-success text-light">{{ msg }}</div>
-                {% endfor %}
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-                    {% for field in form
-                    if field.widget.input_type != 'hidden' %}
-                    <div class="form-group">
-                        {{ field.label }}
-                        {{ field(class="form-control") }}
-                        {% for err in field.errors %}
-                        <small class="form-text text-danger">
-                            {{ err }}
-                        </small>
-                        {% endfor %}
-                    </div>
-                    {% endfor %}
-                    <button class="user-btn btn btn-success btn-large">Go!</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    {% endif %}
 
 
 </div>

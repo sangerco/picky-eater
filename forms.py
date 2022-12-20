@@ -7,10 +7,10 @@ class NewUserForm(FlaskForm):
 
     first_name = StringField('First Name', validators=[InputRequired()])
     last_name = StringField('Last Name', validators=[InputRequired()])
-    username = StringField('Username', validators=[InputRequired()])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=6)])
     email = StringField('Email', validators=[InputRequired(), 
                             Email(message='Please enter a valid email address')])
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=6)])
     image = StringField('Profile Picture URL (Optional)', default='/static/images/picky_eater.jpg')
 
 class LoginForm(FlaskForm):
@@ -20,8 +20,16 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
     
 class UserProfileForm(FlaskForm):
-    """ form for editing user profile """
+    """ form for creating/editing user profile """
 
     no_foods = StringField('No Thank You! Foods')
     yes_foods = StringField('Yes Please! Foods')
-    diet = SelectField('Diet', choices=[])
+    diet = SelectField('Diet', coerce=int, choices=[])
+
+class ChildProfileForm(FlaskForm):
+    ''' form for creating/editing child profiles '''
+
+    name = StringField('Profile Name', validators=[InputRequired()])
+    no_foods = StringField('No Thank You! Foods')
+    yes_foods = StringField('Yes Please! Foods')
+    diet = SelectField('Diet', coerce=int, choices=[])

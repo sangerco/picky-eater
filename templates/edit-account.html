@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 
-{% block title %}Register for Picky{% endblock %}
+{% block title %}Edit {{ user.username }}'s Account{% endblock %}
 
 {% block content%}
 <div class="container">
-    <h1 class="display-1">Create New User</h1>
+    <h1 class="display-1">Edit {{ user.username }}'s Account</h1>
     <div class="row justify-content-center">
         <div class="col-md-8">
             {% for msg in get_flashed_messages() %}
@@ -25,7 +25,7 @@
                     {% endfor %}
                 </div>
                 {% endfor %}
-                <button class="user-btn btn btn-success btn-large">Register</button>
+                <button class="user-btn btn btn-success btn-large">Save</button>
             </form>
         </div>
     </div>

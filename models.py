@@ -31,10 +31,10 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.Text, nullable=False, unique=True)
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
+    username = db.Column(db.Text, nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     image = db.Column(db.Text, default="/static/images/picky_eater.jpg")
     followers = db.relationship("User",
@@ -49,15 +49,15 @@ class User(db.Model):
     )
 
     @classmethod
-    def register_user(cls, username, first_name, last_name, email, password, image):
+    def register_user(cls, first_name, last_name, email, username, password, image):
         """ register user with hashed password """
 
         hashed_password = bcrypt.generate_password_hash(password)
         # below method changes bytestring created by bcrypt into utf8 string
         hashed_utf8 = hashed_password.decode("utf8")
 
-        return cls(username=username, first_name=first_name, 
-                    last_name=last_name, email=email, password=hashed_utf8, image=image)
+        return cls(first_name=first_name, last_name=last_name, email=email, 
+                    username=username, password=hashed_utf8, image=image)
 
     @classmethod
     def authenticate_user(cls, username, password):
@@ -84,6 +84,13 @@ class User(db.Model):
         following_list = [user for user in self.following if user == other_user ]
         return len(following_list) == 1
 
+class Diet(db.Model):
+    ''' simple table for diet select field on profiles pages '''
+
+    __tablename__ = 'diets'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    diet = db.Column(db.Text, unique=True)
 
 class User_profile(db.Model):
     """ generate table for user likes and dislikes """
@@ -95,7 +102,8 @@ class User_profile(db.Model):
     owner = db.Column(db.Text, db.ForeignKey('users.username', ondelete='cascade'))
     no_foods = db.Column(db.Text, default=None)
     yes_foods = db.Column(db.Text, default=None)
-    diet = db.Column(db.Text, default=None)
+    diet_id = db.Column(db.Integer, default=None)
+    diet_name = db.Column(db.Text, db.ForeignKey('diets.diet', ondelete='cascade'))
 
 
 class Child_profile(db.Model):
@@ -112,7 +120,8 @@ class Child_profile(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
     no_foods = db.Column(db.Text, default=None)
     yes_foods = db.Column(db.Text, default=None)
-    diet = db.Column(db.Text, default=None)
+    diet_id = db.Column(db.Integer, default=None)
+    diet_name = db.Column(db.Text, db.ForeignKey('diets.diet', ondelete='cascade'))
 
     users = db.relationship('User_profile', backref='users')
 
@@ -147,11 +156,3 @@ class Shopping_list(db.Model):
                         )
     api_shopping_list_id = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text)
-
-class Diet(db.Model):
-    ''' simple table for diet select field on profiles pages '''
-
-    __tablename__ = 'diets'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    diet = db.Column(db.Text)

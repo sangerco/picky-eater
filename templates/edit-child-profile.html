@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Edit Profile {{ profile.name }}{% endblock %}
+
+{% block content%}
+
+<div class="container">
+    <img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto">
+    <div class="row justify-content-end">
+        <div class="col-md-2">
+            <div class="float-right">
+                {% if g.user.id == user.id %}
+                <div class="row">
+                    <a class="user-btn btn btn-primary btn-lg" href="/profiles/child/{{ profile.id }}" role="button">Go
+                        Back</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% if g.user == user %}
+    <div class="container">
+        <h1 class="display-1">Edit Profile</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                {% for msg in get_flashed_messages() %}
+                <div class="bg-success text-light">{{ msg }}</div>
+                {% endfor %}
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    {% for field in form
+                    if field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                        {{ field.label }}
+                        {{ field(class="form-control") }}
+                        {% for err in field.errors %}
+                        <small class="form-text text-danger">
+                            {{ err }}
+                        </small>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <button class="user-btn btn btn-success btn-large">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

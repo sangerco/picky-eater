@@ -13,19 +13,24 @@
         <div class="row justify-content-end">
             <div class="col-9">
                 <div class="float-right">
+                    <div class="col-2">
+                        <div class="row">
+                            <a href="/users" class="user-btn btn btn-primary">View All Users</a>
+                        </div>
+                    </div>
                     {% if g.user.id == user.id %}
-                    <a href="/users/{{ user.id }}" class="user-btn btn btn-outline-primary">Edit Account</a>
-                    <form action="POST" action="/users/delete" class="form-inline">
+                    <a href="/users/{{ user.id }}/edit" class="user-btn btn btn-outline-success">Edit Account</a>
+                    <form method="POST" action="/users/{{ user.id }}/delete" class="form-inline">
                         <button class="user-btn btn btn-outline-danger">Delete Account</button>
                     </form>
                     {% elif g.user %}
                     {% if g.user.is_following(user) %}
                     <form method="POST" action="/users/unfollow/{{ user.id }}">
-                        <button class="btn btn-primary">Stop Following</button>
+                        <button class="user-btn btn btn-primary">Stop Following</button>
                     </form>
                     {% else %}
                     <form method="post" action="/users/follow/{{ user.id }}">
-                        <button class="btn btn-primary">Follow</button>
+                        <button class="user-btn btn btn-primary">Follow</button>
                     </form>
                     {% endif %}
                     {% endif %}
@@ -34,7 +39,9 @@
         </div>
     </div>
 </div>
-
+<div class="container-fluid text-center">
+    <p>Here's today's joke: {{ joke }}</p>
+</div>
 <div class="row">
     <div class="col-sm-3">
         <p class="display-6">{{ user.username }}</p>
@@ -45,7 +52,7 @@
             <ul>
                 {% for cp in child_profiles %}
                 <li>
-                    <a href="/users/{{ cp.user_id }}/profiles/{{ cp.id }}">{{ cp.name }}</a>
+                    <a href="/profiles/child/{{ cp.id }}">{{ cp.name }}</a>
                 </li>
                 {% endfor %}
             </ul>
