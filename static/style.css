@@ -6,6 +6,21 @@ body {
 
 
 .user-btn {
+    width: 186px;
     margin: 3px;
     padding: 3px;
+}
+
+.user-img {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.recipe-box {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }

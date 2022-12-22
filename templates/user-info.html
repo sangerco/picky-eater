@@ -8,8 +8,55 @@
 <div class="container">
     <div class="row">
         <div class="col-md-4">
-            <img src="{{ user.image }}" class="rounded float-start" alt="{{ user.username }}" width="200px"
-                height="auto">
+            <div class="container px-4">
+                <div class="row gx-5">
+                    <img src="{{ user.image }}" class="user-img rounded float-start" alt="{{ user.username }}"
+                        width="200px" height="auto">
+                    {% if g.user.id == user.id %}
+                    {% if following %}
+                    {% for user in following %}
+                    <div class="col">
+                        <div class="p-3 border bg-light">
+                            <div class="card-inner">
+                                <div class="card-contents">
+                                    <a href="/users/{{ user.id }}" class="card-link">
+                                        <img src="{{ user.image }}" alt="Image for {{ user.username }}"
+                                            class="card-image" width="150px" height="auto">
+                                        <p>@{{ user.username }}</p>
+                                    </a>
+                                    <form method='POST' action="/users/unfollow/{{ user.id }}">
+                                        <button class="btn btn-outline-danger btn-sm">Stop following</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% else %}
+                    {% if followers %}
+                    {% for user in followers %}
+                    <div class="col">
+                        <div class="p-3 border bg-light">
+                            <div class="card-inner">
+                                <div class="card-contents">
+                                    <a href="/users/{{ user.id }}" class="card-link">
+                                        <img src="{{ user.image }}" alt="Image for {{ user.username }}"
+                                            class="card-image" width="150px" height="auto">
+                                        <p>@{{ user.username }}</p>
+                                    </a>
+                                    <form method='POST' action="/users/unfollow/{{ user.id }}">
+                                        <button class="btn btn-outline-danger btn-sm">Stop following</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
         </div>
         <div class="col-md-6">
             <p class="display-6">{{ user.username }}</p>
@@ -54,19 +101,30 @@
     </div>
 </div>
 
-<div class="container text-align-start">
-    <div class="row justify-content-start">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
+<div class="container px-4">
+    <div class="row gx-5">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
             <ul>
                 {% for fr in favorite_recipes %}
-                <a href="/recipes/{{ fr.id }}"><span class="fs-4">Favorite recipe</span></a>
-                <p class="fs-5 text-success">{{ fr.rating }}</p>
-                <p class="fs-5">{{ fr.review }}</p>
+                <div class="recipe-box">
+                    <div class="p-3 border bg-light">
+                        <img src="{{ fr.image }}" class="mr-3" alt="Photo of {{ fr.name }}" width="300px" height="auto">
+                    </div>
+                    <div class="p-3 border bg-light">
+                        <a href="/recipes/{{ fr.api_recipe_id }}"><span>{{ fr.name }}</span></a>
+                    </div>
+                    <div class="p-3 border bg-light">
+                        <p class="text-success">I rated this a {{ fr.rating }}!</p>
+                    </div>
+                    <div class="p-3 border bg-light">
+                        <p>{{ fr.review }}</p>
+                    </div>
+                </div>
                 {% endfor %}
             </ul>
         </div>
-        <div class="col-md-4"></div>
+        <div class="col-md-3"></div>
     </div>
 </div>
 

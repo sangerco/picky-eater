@@ -14,6 +14,18 @@
             </div>
             <div class="p-3 border bg-light">Ready in {{ recipe['readyInMinutes'] }} minutes</div>
             <div class="p-3 border bg-light">Serves {{ recipe['servings'] }}</div>
+            {% if recipe['aggregateLikes'] %}
+            <div class="p-3 border bg-light">{{ recipe['aggregateLikes'] }} people have liked this recipe.</div>
+            {% endif %}
+            {% if recipe['diets'] %}
+            <div class="p-3 border bg-light">
+                <ul>
+                    {% for diet in recipe['diets'] %}
+                    <li>{{ diet }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
             <div class="p-3 border bg-light">
                 <a href="{{ recipe['sourceUrl'] }}">Go to full recipe.</a>
             </div>
@@ -23,9 +35,7 @@
             <div class="p-3 border bg-light">{{ recipe['summary'] }}</div>
         </div>
         <div class="col-md-2">
-            <form method='POST' action="/recipe/favorite">
-                <button class="user-btn btn btn-success">Favorite</button>
-            </form>
+            <a href="/recipes/{{ recipe['id'] }}/favorite" class="user-btn btn btn-success" role="button">Favorite</a>
             <button id="back_btn" class="user-btn btn btn-secondary" name="action">Go Back</button>
         </div>
     </div>

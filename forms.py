@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SelectField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, IntegerField
+from wtforms.validators import InputRequired, Email, Length, NumberRange
 
 class NewUserForm(FlaskForm):
     """ form for signing up new users """
@@ -33,3 +33,9 @@ class ChildProfileForm(FlaskForm):
     no_foods = StringField('No Thank You! Foods')
     yes_foods = StringField('Yes Please! Foods')
     diet = SelectField('Diet', coerce=int, choices=[])
+
+class FavoriteRecipeForm(FlaskForm):
+    ''' form for favoriting, rating, and reviewing recipes '''
+
+    review = TextAreaField('Review this recipe:')
+    rating = IntegerField('Rate this recipe from 1 to 5!', validators=[NumberRange(min=1,max=5,message='Must be a number between 1 and 5!')])

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, User_profile, Child_profile
 from models import Favorite_recipe, Follows, Shopping_list, Diet
-from forms import NewUserForm, LoginForm, UserProfileForm, ChildProfileForm
+from forms import NewUserForm, LoginForm, UserProfileForm, ChildProfileForm, FavoriteRecipeForm
 from sqlalchemy.exc import IntegrityError
 import requests
 
@@ -133,17 +133,16 @@ def general_users_page():
 def user_page(user_id):
     """ display individual users page """
 
-    joke = str(requests.request('GET', URL + "food/jokes/random", headers=HEADERS).json()['text'])
     user = User.query.get_or_404(user_id)
     user_profile = User_profile.query.filter_by(user_id = user_id).first()
     child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
     favorite_recipes = Favorite_recipe.query.filter(Favorite_recipe.user_id == user_id).all()
 
-    return render_template('user-info.html', joke=joke,
-                user=user, user_profile=user_profile, 
-                child_profiles=child_profiles, favorite_recipes=favorite_recipes)
+    return render_template('user-info.html', user=user, user_profile=user_profile, 
+                child_profiles=child_profiles, following=user.following, 
+                followers=user.followers, favorite_recipes=favorite_recipes)
 
-@app.route('/users/edit/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/users/edit/<int:user_id>', methods=['GET', 'PATCH'])
 def edit_account(user_id):
     """ render form to edit account """
 
@@ -267,7 +266,7 @@ def user_profile_page(user_id):
         
     return render_template('user-profile.html', user=user, form=form)
 
-@app.route('/users/profile/edit/<int:user_id>', methods=['GET','POST'])
+@app.route('/users/profile/edit/<int:user_id>', methods=['GET','PATCH'])
 def edit_user_profile(user_id):
     """ render form to edit user profile
         redirect to user page """
@@ -352,7 +351,7 @@ def view_child_profile(child_profile_id):
     return render_template('child-profile.html', profile=profile, user=user, no_foods=no_food_list, 
                     yes_foods=yes_food_list)
 
-@app.route('/profiles/child/edit/<int:child_profile_id>', methods=['GET', 'POST'])
+@app.route('/profiles/child/edit/<int:child_profile_id>', methods=['GET', 'PATCH'])
 def edit_child_profile(child_profile_id):
     """ edit child profile page """
 
@@ -438,9 +437,6 @@ def show_child_recipe_results(child_profile_id):
     user = User.query.get_or_404(id)
     no_food_list = profile.no_foods.split()
     yes_food_list = profile.yes_foods.split()
-    print(no_food_list)
-    print(yes_food_list)
-
     querystring = {'number':'25',
                     'includeIngredients':yes_food_list,
                     'excludeIngredients':no_food_list,
@@ -448,32 +444,57 @@ def show_child_recipe_results(child_profile_id):
 
     res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
 
-    print(res)
     return render_template('recipe-results.html', user=user, recipes=res['results'])
 
-@app.route('/recipes/<int:recipe_id>', methods=['GET'])
+@app.route('/recipes/<int:recipe_id>', methods=['GET', 'POST'])
 def recipe_info_page(recipe_id):
     """ get recipe info from api
         display recipe info 
         """
     id = str(recipe_id)
     recipe_info_endpoint = "recipes/{0}/information".format(id)
-    visualizeIngredients = "recipes/{0}/visualizeIngredients".format(id)
 
 
     res = requests.request('GET', URL + recipe_info_endpoint, headers=HEADERS).json()
 
-    recipe_headers = {
-        'x-rapidapi-host': API_HOST,
-        'x-rapidapi-key': API_SECRET_KEY,
-        'accept': 'text/html'
-        }
-    querystring = {"defaultCss":"true", "showBacklink":"false"}
-
-    res['visualizeIngredients'] = requests.request("GET", URL + visualizeIngredients, 
-        headers=recipe_headers, params=querystring).text
-
-    print(res)
-
     return render_template('recipe.html', recipe=res)
     
+@app.route('/recipes/<int:recipe_id>/favorite', methods=['GET', 'POST'])
+def favorite_recipe(recipe_id):
+    """ render form to review and rate recipe 
+        send recipe info, review, and rating to db
+        """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect('/')
+
+    if CURR_USER_KEY not in session:
+        flash('Please log in first!', 'danger')
+        return redirect('/')
+
+    user = User.query.get_or_404(session[CURR_USER_KEY])
+    profile = User_profile.query.filter_by(user_id = user.id).first()
+
+    id = str(recipe_id)
+    recipe_info_endpoint = "recipes/{0}/information".format(id)
+    res = requests.request('GET', URL + recipe_info_endpoint, headers=HEADERS).json()
+
+    form = FavoriteRecipeForm()
+    if form.validate_on_submit():
+        review = form.review.data
+        rating = form.rating.data
+        user_profile_id = profile.id
+        user_id = user.id
+        name = res['title']
+        api_recipe_id = recipe_id
+
+        fav_recipe = Favorite_recipe(user_profile_id=user_profile_id, user_id=user_id, 
+                name=name, api_recipe_id=api_recipe_id, review=review, rating=rating)
+        db.session.add(fav_recipe)
+        db.session.commit()
+        flash('Favorite recipe added.', 'success')
+        return redirect(f'/recipes/{recipe_id}')
+
+    return render_template('new-fav-recipe.html', recipe=res, form=form, 
+                    user=user, profile=profile)

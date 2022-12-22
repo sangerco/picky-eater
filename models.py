@@ -139,6 +139,7 @@ class Favorite_recipe(db.Model):
                     db.ForeignKey('users.id', ondelete='cascade')
                     )
     name = db.Column(db.Text, nullable=False)
+    # image = db.Column(db.Text)
     api_recipe_id = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text)
     rating = db.Column(db.Integer, default=None)
