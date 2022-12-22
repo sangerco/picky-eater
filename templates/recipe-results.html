@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Recipe Results{% endblock %}
+
+{% block content%}
+
+
+<div class="container text-center">
+    <div class="row justify-content-end">
+        <div class="col-md-2">
+            <div class="float-right">
+                <div class="row">
+                    <button id="back_btn" class="user-btn btn btn-secondary" name="action">Go Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row align-items-start">
+        {% for recipe in recipes %}
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <div class="card" style="width: 300px">
+                <img src="{{ recipe['image'] }}" alt="Image for {{ recipe['title'] }}">
+                <div class="card-bod">
+                    <h5 class="card-title">{{ recipe['title'] }}</h5>
+                </div>
+                <div class="card-body">
+                    <a href="/recipes/{{ recipe['id'] }}" class="card-link">{{ recipe['title'] }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3"></div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

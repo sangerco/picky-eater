@@ -14,13 +14,17 @@
                 <a class="user-btn btn btn-secondary btn-lg" href="/users/{{ user.id }}" role="button">Go Back</a>
                 {% if profile %}
                 <div class="row">
-                    <a class="user-btn btn btn-primary btn-lg" href="/users/{{ user.id }}/profile/edit"
+                    <a class="user-btn btn btn-primary btn-lg" href="/users/profile/edit/{{ user.id }}"
                         role="button">Edit
                         Profile</a>
                 </div>
                 <div class="row">
-                    <a class="user-btn btn btn-success btn-lg" href="/users/{{ profile.id }}/child-profile/new"
+                    <a class="user-btn btn btn-info btn-lg" href="/users/child-profile/{{ profile.id }}/new"
                         role="button">Create Child Profile</a>
+                </div>
+                <div class="row">
+                    <a class="user-btn btn btn-success btn-lg" href='/users/profile/{{ user.id }}/recipes'
+                        role="button">Get Recipes Now!</a>
                 </div>
                 {% endif %}
                 {% elif g.user %}
@@ -37,6 +41,10 @@
                     </form>
                 </div>
                 {% endif %}
+                <div class="row">
+                    <a class="user-btn btn btn-success btn-lg" href='/users/{{ user.id }}/profile/recipes'
+                        role="button">Get Recipes Now!</a>
+                </div>
                 {% endif %}
 
             </div>
@@ -52,7 +60,7 @@
             <p><strong>{{ profile.owner }}'s No Thank You Foods</strong></p>
             <ul class="list-group list-group-flush">
                 {% for nf in no_foods %}
-                <li class="list-group-item">{{ nf }}</li>
+                <li class="list-group-item">{{ nf.strip(',') }}</li>
                 {% endfor %}
             </ul>
             {% endif %}
@@ -60,7 +68,7 @@
             <p class=><strong>{{ profile.owner }}'s Yes Please Foods</strong></p>
             <ul class="list-group list-group-flush">
                 {% for yf in yes_foods %}
-                <li class="list-group-item">{{ yf }}</li>
+                <li class="list-group-item">{{ yf.strip(',') }}</li>
                 {% endfor %}
             </ul>
             {% endif %}

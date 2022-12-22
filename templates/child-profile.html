@@ -6,8 +6,33 @@
 {% block content%}
 
 <div class="container">
-    <img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto">
     <div class="row justify-content-end">
+        <div class="col-md-4">
+            <img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto">
+        </div>
+        <div class="col-md-6">
+            <h1 class="display-5"><strong>{{ profile.name }}</strong></h1>
+            <br>
+            {% if no_foods %}
+            <p><strong>No Thank You Foods</strong></p>
+            <ul class="list-group list-group-flush">
+                {% for nf in no_foods %}
+                <li class="list-group-item">{{ nf.strip(',') }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if yes_foods %}
+            <p class=><strong>Yes Please Foods</strong></p>
+            <ul class="list-group list-group-flush">
+                {% for yf in yes_foods %}
+                <li class="list-group-item">{{ yf.strip(',') }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if profile.diet_id %}
+            <p class=><strong>Diet:</strong> {{ profile.diet_name }}</p>
+            {% endif %}
+        </div>
         <div class="col-md-2">
             <div class="float-right">
                 <div class="row">
@@ -19,12 +44,12 @@
                 {% if g.user.id == user.id %}
                 {% if profile %}
                 <div class="row">
-                    <a class="user-btn btn btn-success btn-lg" href="/profiles/child/{{ profile.id }}/edit"
+                    <a class="user-btn btn btn-success btn-lg" href="/profiles/child/edit/{{ profile.id }}"
                         role="button">Edit
                         Profile</a>
                 </div>
                 <div class="row">
-                    <a class="user-btn btn btn-outline-danger btn-lg" href="/profiles/child/{{ profile.id }}/delete"
+                    <a class="user-btn btn btn-outline-danger btn-lg" href="/profiles/child/delete/{{ profile.id }}"
                         role="button">Delete Profile</a>
                 </div>
                 {% endif %}
@@ -43,36 +68,19 @@
                 </div>
                 {% endif %}
                 {% endif %}
+                <div class="row">
+                    <a class="user-btn btn btn-success btn-lg" href='/profiles/child/{{ profile.id }}/recipes'
+                        role="button">Get Recipes Now!</a>
+                </div>
 
             </div>
         </div>
     </div>
-    <div class="row align-items-start">
+    <!-- <div class="row align-items-start">
         <div class="col-2"></div>
         <div class="col-8">
-            <h1 class="display-5"><strong>{{ profile.name }}</strong></h1>
-            <br>
-            {% if no_foods %}
-            <p><strong>No Thank You Foods</strong></p>
-            <ul class="list-group list-group-flush">
-                {% for nf in no_foods %}
-                <li class="list-group-item">{{ nf }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% if yes_foods %}
-            <p class=><strong>Yes Please Foods</strong></p>
-            <ul class="list-group list-group-flush">
-                {% for yf in yes_foods %}
-                <li class="list-group-item">{{ yf }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% if profile.diet_id %}
-            <p class=><strong>Diet:</strong> {{ profile.diet_name }}</p>
-            {% endif %}
         </div>
-    </div>
+    </div> -->
 
 
 </div>

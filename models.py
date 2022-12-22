@@ -103,7 +103,7 @@ class User_profile(db.Model):
     no_foods = db.Column(db.Text, default=None)
     yes_foods = db.Column(db.Text, default=None)
     diet_id = db.Column(db.Integer, default=None)
-    diet_name = db.Column(db.Text, db.ForeignKey('diets.diet', ondelete='cascade'))
+    diet_name = db.Column(db.Text, db.ForeignKey('diets.diet'))
 
 
 class Child_profile(db.Model):
@@ -123,7 +123,6 @@ class Child_profile(db.Model):
     diet_id = db.Column(db.Integer, default=None)
     diet_name = db.Column(db.Text, db.ForeignKey('diets.diet', ondelete='cascade'))
 
-    users = db.relationship('User_profile', backref='users')
 
 class Favorite_recipe(db.Model):
     """ provide table for user's favorite recipes """
@@ -139,6 +138,7 @@ class Favorite_recipe(db.Model):
                     db.Integer,
                     db.ForeignKey('users.id', ondelete='cascade')
                     )
+    name = db.Column(db.Text, nullable=False)
     api_recipe_id = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text)
     rating = db.Column(db.Integer, default=None)

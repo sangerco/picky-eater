@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+
+{% block title %}{{ recipe['title'] }}{% endblock %}
+
+{% block content%}
+
+<div class="container px-4">
+    <div class="row gx-5">
+        <div class="col-md-4">
+            <div class="p-3 border bg-light">
+                <img src="{{ recipe['image'] }}" class="mr-3" alt="Photo of {{ recipe['title'] }}" width="300px"
+                    height="auto">
+            </div>
+            <div class="p-3 border bg-light">Ready in {{ recipe['readyInMinutes'] }} minutes</div>
+            <div class="p-3 border bg-light">Serves {{ recipe['servings'] }}</div>
+            <div class="p-3 border bg-light">
+                <a href="{{ recipe['sourceUrl'] }}">Go to full recipe.</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h5 class="p-3 border bg-light">{{ recipe['title'] }}</h5>
+            <div class="p-3 border bg-light">{{ recipe['summary'] }}</div>
+        </div>
+        <div class="col-md-2">
+            <form method='POST' action="/recipe/favorite">
+                <button class="user-btn btn btn-success">Favorite</button>
+            </form>
+            <button id="back_btn" class="user-btn btn btn-secondary" name="action">Go Back</button>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

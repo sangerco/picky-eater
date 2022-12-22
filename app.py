@@ -143,7 +143,7 @@ def user_page(user_id):
                 user=user, user_profile=user_profile, 
                 child_profiles=child_profiles, favorite_recipes=favorite_recipes)
 
-@app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@app.route('/users/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit_account(user_id):
     """ render form to edit account """
 
@@ -169,7 +169,7 @@ def edit_account(user_id):
 
     return render_template('edit-account.html', user=user, form=form)
 
-@app.route('/users/<int:user_id>/delete', methods=['GET', 'POST'])
+@app.route('/users/delete/<int:user_id>', methods=['GET', 'POST'])
 def delete_user(user_id):
     """ delete account """
 
@@ -184,8 +184,35 @@ def delete_user(user_id):
 
     return redirect("/")
 
+@app.route('/users/follow/<int:follow_id>', methods=['POST'])
+def follow_user(follow_id):
+    """ find user in db, append to logged-in user's following list """
 
-@app.route('/users/<int:user_id>/profile', methods=['GET', 'POST'])
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")    
+
+    followed_user = User.query.get_or_404(follow_id)
+    g.user.following.append(followed_user)
+    db.session.commit()
+
+    return redirect(f'/users/{g.user.id}')
+
+@app.route('/users/unfollow/<int:follow_id>', methods=['POST'])
+def unfollow_user(follow_id):
+    """ find user in db, remove from logged-in user's following list """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")    
+
+    followed_user = User.query.get_or_404(follow_id)
+    g.user.following.remove(followed_user)
+    db.session.commit()
+
+    return redirect(f'/users/{g.user.id}')
+
+@app.route('/users/profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile_page(user_id):
     """ display user profile page
         if no profile yet, display form to create new profile """
@@ -240,7 +267,7 @@ def user_profile_page(user_id):
         
     return render_template('user-profile.html', user=user, form=form)
 
-@app.route('/users/<int:user_id>/profile/edit', methods=['GET','POST'])
+@app.route('/users/profile/edit/<int:user_id>', methods=['GET','POST'])
 def edit_user_profile(user_id):
     """ render form to edit user profile
         redirect to user page """
@@ -264,11 +291,11 @@ def edit_user_profile(user_id):
         profile.diet_name = Diet.query.get(profile.diet_id).diet
         db.session.commit()
         flash(f"{user.username}'s profile edited", 'success')
-        return redirect(f"/users/{user.id}/profile")
+        return redirect(f"/users/profile/{user.id}")
 
     return render_template('edit-profile.html', user=user, form=form)
 
-@app.route('/users/<int:user_id>/child-profile/new', methods=['GET', 'POST'])
+@app.route('/users/child-profile/<int:user_id>/new', methods=['GET', 'POST'])
 def create_child_profile(user_id):
     ''' render form to create child profile, 
         redirect to user profile page '''
@@ -307,7 +334,7 @@ def view_child_profile(child_profile_id):
     """ child profile page """
 
     profile = Child_profile.query.get_or_404(child_profile_id)
-    id = Child_profile.query.get_or_404(child_profile_id).users.id
+    id = Child_profile.query.get_or_404(child_profile_id).user_id
     user = User.query.get_or_404(id)
 
     if profile.no_foods:
@@ -325,7 +352,7 @@ def view_child_profile(child_profile_id):
     return render_template('child-profile.html', profile=profile, user=user, no_foods=no_food_list, 
                     yes_foods=yes_food_list)
 
-@app.route('/profiles/child/<int:child_profile_id>/edit', methods=['GET', 'POST'])
+@app.route('/profiles/child/edit/<int:child_profile_id>', methods=['GET', 'POST'])
 def edit_child_profile(child_profile_id):
     """ edit child profile page """
 
@@ -338,7 +365,7 @@ def edit_child_profile(child_profile_id):
         return redirect('/')
 
     profile = Child_profile.query.get_or_404(child_profile_id)
-    id = Child_profile.query.get_or_404(child_profile_id).users.id
+    id = Child_profile.query.get_or_404(child_profile_id).user_id
     user = User.query.get_or_404(id)
     form = ChildProfileForm(obj=profile)
     form.diet.choices = [(diet.id, diet.diet) for diet in Diet.query.all()]
@@ -354,7 +381,7 @@ def edit_child_profile(child_profile_id):
 
     return render_template('edit-child-profile.html', profile=profile, user=user, form=form)
 
-@app.route('/profiles/child/<int:child_profile_id>/delete', methods=['GET', 'POST'])
+@app.route('/profiles/child/delete/<int:child_profile_id>', methods=['GET', 'POST'])
 def delete_child_profile(child_profile_id):
     """ delete chile profile, redirect to user page """
 
@@ -367,10 +394,86 @@ def delete_child_profile(child_profile_id):
         return redirect('/')
 
     profile = Child_profile.query.get_or_404(child_profile_id)
-    id = Child_profile.query.get_or_404(child_profile_id).users.id
+    id = Child_profile.query.get_or_404(child_profile_id).user_id
     user = User.query.get_or_404(id)
 
     db.session.delete(profile)
     db.session.commit()
 
     return redirect(f"/users/{user.id}")
+
+@app.route('/users/profile/<int:user_id>/recipes', methods=['GET', 'POST'])
+def show_user_recipe_results(user_id):
+    """ parse from user profile
+        run api call and parse returned data
+        render returned template
+        """
+
+    user = User.query.get_or_404(user_id)
+    profile = User_profile.query.filter_by(user_id = user_id).first()
+    no_food_list = profile.no_foods.split()
+    yes_food_list = profile.yes_foods.split()
+    print(no_food_list)
+    print(yes_food_list)
+
+    querystring = {'number':'25',
+                    'includeIngredients':yes_food_list,
+                    'excludeIngredients':no_food_list,
+                    'diet':profile.diet_name}
+
+    res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
+
+    print(res)
+    return render_template('recipe-results.html', user=user, recipes=res['results'])
+
+@app.route('/profiles/child/<int:child_profile_id>/recipes', methods=['GET', 'POST'])
+def show_child_recipe_results(child_profile_id):
+    """ parse from user/child profile
+        run api call and parse returned data
+        render returned template
+        """
+
+    profile = Child_profile.query.get_or_404(child_profile_id)
+    id = Child_profile.query.get_or_404(child_profile_id).user_id
+    user = User.query.get_or_404(id)
+    no_food_list = profile.no_foods.split()
+    yes_food_list = profile.yes_foods.split()
+    print(no_food_list)
+    print(yes_food_list)
+
+    querystring = {'number':'25',
+                    'includeIngredients':yes_food_list,
+                    'excludeIngredients':no_food_list,
+                    'diet':profile.diet_name}
+
+    res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
+
+    print(res)
+    return render_template('recipe-results.html', user=user, recipes=res['results'])
+
+@app.route('/recipes/<int:recipe_id>', methods=['GET'])
+def recipe_info_page(recipe_id):
+    """ get recipe info from api
+        display recipe info 
+        """
+    id = str(recipe_id)
+    recipe_info_endpoint = "recipes/{0}/information".format(id)
+    visualizeIngredients = "recipes/{0}/visualizeIngredients".format(id)
+
+
+    res = requests.request('GET', URL + recipe_info_endpoint, headers=HEADERS).json()
+
+    recipe_headers = {
+        'x-rapidapi-host': API_HOST,
+        'x-rapidapi-key': API_SECRET_KEY,
+        'accept': 'text/html'
+        }
+    querystring = {"defaultCss":"true", "showBacklink":"false"}
+
+    res['visualizeIngredients'] = requests.request("GET", URL + visualizeIngredients, 
+        headers=recipe_headers, params=querystring).text
+
+    print(res)
+
+    return render_template('recipe.html', recipe=res)
+    
