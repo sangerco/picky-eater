@@ -38,4 +38,15 @@ class FavoriteRecipeForm(FlaskForm):
     ''' form for favoriting, rating, and reviewing recipes '''
 
     review = TextAreaField('Review this recipe:')
-    rating = IntegerField('Rate this recipe from 1 to 5!', validators=[NumberRange(min=1,max=5,message='Must be a number between 1 and 5!')])
+    rating = IntegerField('Rate this recipe from 1 to 5!', 
+                    validators=[NumberRange(min=1,max=5,
+                    message='Must be a number between 1 and 5!')])
+
+class ShareRecipeForm(FlaskForm):
+    ''' form for sharing recipes with other users with message functionality '''
+
+    def pre_validate(self, form):
+        pass
+
+    follower = SelectField('Who are you sharing this with?', coerce=int, choices=[])
+    message = TextAreaField('Type message here.')

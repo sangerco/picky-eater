@@ -139,7 +139,7 @@ class Favorite_recipe(db.Model):
                     db.ForeignKey('users.id', ondelete='cascade')
                     )
     name = db.Column(db.Text, nullable=False)
-    # image = db.Column(db.Text)
+    image = db.Column(db.Text)
     api_recipe_id = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text)
     rating = db.Column(db.Integer, default=None)
@@ -157,3 +157,21 @@ class Shopping_list(db.Model):
                         )
     api_shopping_list_id = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text)
+
+class Message(db.Model):
+    """ provide functionality for sending recipes to following user """
+
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    recipe_name = db.Column(db.Text, nullable=False)
+    api_recipe_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(
+                        db.Integer,
+                        db.ForeignKey('users.id', ondelete='cascade')
+                        )
+    follower = db.Column(
+                        db.Integer,
+                        db.ForeignKey('users.id', ondelete='cascade')
+                        )
+    message = db.Column(db.Text)

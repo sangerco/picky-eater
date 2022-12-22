@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, User_profile, Child_profile
-from models import Favorite_recipe, Follows, Shopping_list, Diet
-from forms import NewUserForm, LoginForm, UserProfileForm, ChildProfileForm, FavoriteRecipeForm
+from models import Favorite_recipe, Follows, Shopping_list, Diet, Message
+from forms import NewUserForm, LoginForm, UserProfileForm, ChildProfileForm
+from forms import FavoriteRecipeForm, ShareRecipeForm
 from sqlalchemy.exc import IntegrityError
 import requests
 
@@ -195,7 +196,7 @@ def follow_user(follow_id):
     g.user.following.append(followed_user)
     db.session.commit()
 
-    return redirect(f'/users/{g.user.id}')
+    return redirect(f'/users')
 
 @app.route('/users/unfollow/<int:follow_id>', methods=['POST'])
 def unfollow_user(follow_id):
@@ -209,7 +210,7 @@ def unfollow_user(follow_id):
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    return redirect(f'/users/{g.user.id}')
+    return redirect(f'/users')
 
 @app.route('/users/profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile_page(user_id):
@@ -308,7 +309,9 @@ def create_child_profile(user_id):
         return redirect('/')
 
     user = User.query.get_or_404(user_id)
-    user_profile_id = User_profile.query.filter_by(user_id = user_id).first().id
+    profile = User_profile.query.filter_by(user_id = user.id).first()
+    print(profile)
+    user_profile_id = profile.id
     form = ChildProfileForm()
     form.diet.choices = [(diet.id, diet.diet) for diet in Diet.query.all()]
     if form.validate_on_submit():
@@ -418,7 +421,8 @@ def show_user_recipe_results(user_id):
     querystring = {'number':'25',
                     'includeIngredients':yes_food_list,
                     'excludeIngredients':no_food_list,
-                    'diet':profile.diet_name}
+                    'diet':profile.diet_name,
+                    'sort':'random'}
 
     res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
 
@@ -440,7 +444,8 @@ def show_child_recipe_results(child_profile_id):
     querystring = {'number':'25',
                     'includeIngredients':yes_food_list,
                     'excludeIngredients':no_food_list,
-                    'diet':profile.diet_name}
+                    'diet':profile.diet_name,
+                    'sort':'random'}
 
     res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
 
@@ -487,10 +492,11 @@ def favorite_recipe(recipe_id):
         user_profile_id = profile.id
         user_id = user.id
         name = res['title']
+        image = res['image']
         api_recipe_id = recipe_id
 
         fav_recipe = Favorite_recipe(user_profile_id=user_profile_id, user_id=user_id, 
-                name=name, api_recipe_id=api_recipe_id, review=review, rating=rating)
+                name=name, image=image, api_recipe_id=api_recipe_id, review=review, rating=rating)
         db.session.add(fav_recipe)
         db.session.commit()
         flash('Favorite recipe added.', 'success')
@@ -498,3 +504,44 @@ def favorite_recipe(recipe_id):
 
     return render_template('new-fav-recipe.html', recipe=res, form=form, 
                     user=user, profile=profile)
+
+@app.route('/shares/<int:recipe_id>', methods=['GET', 'POST'])
+def send_recipe(recipe_id):
+    """ share recipe with following user """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect('/')
+
+    if CURR_USER_KEY not in session:
+        flash('Please log in first!', 'danger')
+        return redirect('/')
+
+    user = User.query.get_or_404(session[CURR_USER_KEY])
+    followers = User.query.get_or_404(session[CURR_USER_KEY]).followers
+    for follower in followers:
+        print(follower)
+
+    id = str(recipe_id)
+    recipe_info_endpoint = "recipes/{0}/information".format(id)
+    res = requests.request('GET', URL + recipe_info_endpoint, headers=HEADERS).json()
+
+    form = ShareRecipeForm()
+    form.follower.choices = [(follower.id, follower.username) for follower in followers]
+    print(form.follower.choices)
+    if form.validate_on_submit():
+        recipe_name = res['title']
+        api_recipe_id = recipe_id   
+        user_id = user.id
+        follower = form.follower.data
+        message = form.message.data
+
+        new_share = Message(recipe_name=recipe_name, api_recipe_id=api_recipe_id, 
+                user_id=user_id, follower=follower, message=message)
+        db.session.add(new_share)
+        db.session.commit()
+        flash('Recipe shared.', 'success')
+        return redirect(f'/recipes/{recipe_id}')    
+
+    return render_template('message.html', recipe=res, user=user, followers=followers, 
+                            form=form)    
