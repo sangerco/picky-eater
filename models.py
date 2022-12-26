@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from datetime import datetime
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -170,8 +171,17 @@ class Message(db.Model):
                         db.Integer,
                         db.ForeignKey('users.id', ondelete='cascade')
                         )
+    username = db.Column(
+                        db.Text,
+                        db.ForeignKey('users.username', ondelete='cascade')
+    )
     follower = db.Column(
                         db.Integer,
                         db.ForeignKey('users.id', ondelete='cascade')
                         )
     message = db.Column(db.Text)
+    timestamp = db.Column(
+                        db.DateTime,
+                        nullable=False,
+                        default=datetime.utcnow(),
+    )

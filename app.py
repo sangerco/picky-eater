@@ -138,10 +138,11 @@ def user_page(user_id):
     user_profile = User_profile.query.filter_by(user_id = user_id).first()
     child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
     favorite_recipes = Favorite_recipe.query.filter(Favorite_recipe.user_id == user_id).all()
+    msgs = Message.query.filter(Message.follower == user_id).all()
 
     return render_template('user-info.html', user=user, user_profile=user_profile, 
                 child_profiles=child_profiles, following=user.following, 
-                followers=user.followers, favorite_recipes=favorite_recipes)
+                followers=user.followers, favorite_recipes=favorite_recipes, msgs=msgs)
 
 @app.route('/users/edit/<int:user_id>', methods=['GET', 'PATCH'])
 def edit_account(user_id):
@@ -505,7 +506,7 @@ def favorite_recipe(recipe_id):
     return render_template('new-fav-recipe.html', recipe=res, form=form, 
                     user=user, profile=profile)
 
-@app.route('/shares/<int:recipe_id>', methods=['GET', 'POST'])
+@app.route('/shares/<int:recipe_id>/share-recipe', methods=['GET', 'POST'])
 def send_recipe(recipe_id):
     """ share recipe with following user """
 
@@ -543,5 +544,5 @@ def send_recipe(recipe_id):
         flash('Recipe shared.', 'success')
         return redirect(f'/recipes/{recipe_id}')    
 
-    return render_template('message.html', recipe=res, user=user, followers=followers, 
+    return render_template('share.html', recipe=res, user=user, followers=followers, 
                             form=form)    

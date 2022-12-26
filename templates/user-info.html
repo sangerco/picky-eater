@@ -58,7 +58,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-5">
             <p class="display-6">{{ user.username }}</p>
             <ul>
                 <li>
@@ -91,30 +91,47 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="col-md-2">
-            <div class="float-right">
-                <div>
-                    <div class="row">
-                        <a href="/users" class="user-btn btn btn-primary">View All Users</a>
-                    </div>
+        <div class="col-md-3">
+            <div>
+                <div class="row">
+                    <a href="/users" class="user-btn btn btn-primary">View All Users</a>
                 </div>
-                {% if g.user.id == user.id %}
-                <a href="/users/edit/{{ user.id }}" class="user-btn btn btn-outline-success">Edit Account</a>
-                <form method="POST" action="/users/delete/{{ user.id }}" class="form-inline">
-                    <button class="user-btn btn btn-outline-danger">Delete Account</button>
-                </form>
-                {% elif g.user %}
-                {% if g.user.is_following(user) %}
-                <form method="POST" action="/users/unfollow/{{ user.id }}">
-                    <button class="user-btn btn btn-primary">Stop Following</button>
-                </form>
-                {% else %}
-                <form method="post" action="/users/follow/{{ user.id }}">
-                    <button class="user-btn btn btn-primary">Follow</button>
-                </form>
-                {% endif %}
-                {% endif %}
             </div>
+            {% if g.user.id == user.id %}
+            <a href="/users/edit/{{ user.id }}" class="user-btn btn btn-outline-success">Edit Account</a>
+            <form method="POST" action="/users/delete/{{ user.id }}" class="form-inline">
+                <button class="user-btn btn btn-outline-danger">Delete Account</button>
+            </form>
+            {% elif g.user %}
+            {% if g.user.is_following(user) %}
+            <form method="POST" action="/users/unfollow/{{ user.id }}">
+                <button class="user-btn btn btn-primary">Stop Following</button>
+            </form>
+            {% else %}
+            <form method="post" action="/users/follow/{{ user.id }}">
+                <button class="user-btn btn btn-primary">Follow</button>
+            </form>
+            {% endif %}
+            {% endif %}
+            <br>
+            <br>
+            {% if g.user.id == user.id %}
+            {% if msgs %}
+            {% for msg in msgs %}
+            <div class="msg-box">
+                <div class="p-3 border bg-light">
+                    <p>{{ msg.username }} has shared a recipe with you.</p>
+                </div>
+                <div class="p-3 border bg-light">
+                    <a href="/recipes/{{ msg.api_recipe_id }}">{{ msg.recipe_name }}</a>
+                </div>
+                <div class="p-3 border bg-light">
+                    <p>{{ msg.message }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endif %}
         </div>
     </div>
 </div>

@@ -28,6 +28,7 @@
                 <li><a class='nav-link active' href="/signup">Sign up</a></li>
                 <li><a class='nav-link active' href="/login">Log in</a></li>
                 {% else %}
+                <li><a href="/messages/{{ g.user.id }}" class="nav-link"></a></li>
                 <li><a class="nav-link active" href="/users">View all users</a></li>
                 <li>
                     <a class='nav-link active' href="/users/{{ g.user.id }}">
