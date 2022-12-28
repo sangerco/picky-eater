@@ -154,6 +154,23 @@ class Favorite_recipe(db.Model):
     review = db.Column(db.Text)
     rating = db.Column(db.Integer, default=None)
 
+class Reply(db.Model):
+    """ functionality to reply to shared recipes """
+
+    __tablename__ = 'replies'    
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'))
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
+    message = db.Column(db.Text)
+    timestamp = db.Column(
+                        db.DateTime,
+                        nullable=False,
+                        default=datetime.utcnow(),
+    )
+    
+
 
 class Message(db.Model):
     """ provide functionality for sending recipes to following user """
@@ -181,19 +198,24 @@ class Message(db.Model):
                         nullable=False,
                         default=datetime.utcnow(),
     )
+    replies = db.relationship('Reply', 
+                                secondary = 'messages_replies',
+                                backref = 'messages')
 
-class Reply(db.Model):
-    """ functionality to reply to shared recipes """
 
-    __tablename__ = 'replies'    
+class MessageReply(db.Model):
+    ''' mapping table for messages and replies '''
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'))
-    sender_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
-    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
-    message = db.Column(db.Text)
-    timestamp = db.Column(
-                        db.DateTime,
-                        nullable=False,
-                        default=datetime.utcnow(),
-    )
+    __tablename__ = 'messages_replies'
+
+    message_id = db.Column(
+                            db.Integer,
+                            db.ForeignKey('messages.id'),
+                            primary_key=True
+                            )
+
+    reply_id = db.Column(
+                            db.Integer,
+                            db.ForeignKey('replies.id'),
+                            primary_key=True
+                            )

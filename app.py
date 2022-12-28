@@ -140,10 +140,12 @@ def user_page(user_id):
     child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
     favorite_recipes = Favorite_recipe.query.filter(Favorite_recipe.user_id == user_id).all()
     msgs = Message.query.filter(Message.follower == user_id).order_by(Message.timestamp.desc()).all()
+    replies = Reply.query.filter(Reply.recipient_id == user_id).order_by(Reply.timestamp.desc()).all()
 
     return render_template('user-info.html', user=user, user_profile=user_profile, 
                 child_profiles=child_profiles, following=user.following, 
-                followers=user.followers, favorite_recipes=favorite_recipes, msgs=msgs)
+                followers=user.followers, favorite_recipes=favorite_recipes, msgs=msgs,
+                replies=replies)
 
 @app.route('/users/edit/<int:user_id>', methods=['GET', 'PATCH'])
 def edit_account(user_id):
@@ -246,6 +248,8 @@ def user_profile_page(user_id):
 
         if profile.intolerances:
             intolerances_list = profile.intolerances.split()
+        else:
+            intolerances_list = []
 
         return render_template('user-profile.html', user=user, profile=profile,
                     child_profiles=child_profiles, no_foods=no_food_list, 

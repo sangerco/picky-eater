@@ -132,9 +132,23 @@
                     <a href="/messages/{{ msg.id }}/reply" class="user-btn btn btn-primary btn-sm"
                         role="button">Reply</a>
                 </div>
+                {% if msg.replies %}
+                {% for reply in msg.replies %}
+                <div class="p-3 border bg-light">
+                    <p>{{ reply.message }}</p>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+                {% if replies %}
+                {% for reply in replies %}
+                <div class="p-3 border bg-light">
+                    <p>{{ reply.message }}</p>
+                </div>
+                {% endfor %}
+                {% endif %}
             </div>
-            {% endfor %}
-            {% endif %}
             {% endif %}
         </div>
     </div>
