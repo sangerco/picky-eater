@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SelectField, IntegerField
+from wtforms import SelectMultipleField
 from wtforms.validators import InputRequired, Email, Length, NumberRange
 
 class NewUserForm(FlaskForm):
@@ -25,6 +26,7 @@ class UserProfileForm(FlaskForm):
     no_foods = StringField('No Thank You! Foods')
     yes_foods = StringField('Yes Please! Foods')
     diet = SelectField('Diet', coerce=int, choices=[])
+    intolerances = StringField('Intolerances')
 
 class ChildProfileForm(FlaskForm):
     ''' form for creating/editing child profiles '''
@@ -33,6 +35,7 @@ class ChildProfileForm(FlaskForm):
     no_foods = StringField('No Thank You! Foods')
     yes_foods = StringField('Yes Please! Foods')
     diet = SelectField('Diet', coerce=int, choices=[])
+    intolerances = StringField('Intolerances')
 
 class FavoriteRecipeForm(FlaskForm):
     ''' form for favoriting, rating, and reviewing recipes '''
@@ -49,4 +52,12 @@ class ShareRecipeForm(FlaskForm):
         pass
 
     follower = SelectField('Who are you sharing this with?', coerce=int, choices=[])
+    message = TextAreaField('Type message here.')
+
+class ReplyForm(FlaskForm):
+    ''' form for replying to shared messages '''
+
+    def pre_validate(self, form):
+        pass
+
     message = TextAreaField('Type message here.')

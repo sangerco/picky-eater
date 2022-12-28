@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, User_profile, Child_profile
-from models import Favorite_recipe, Follows, Shopping_list, Diet, Message
+from models import Favorite_recipe, Follows, Diet, Message, Reply
 from forms import NewUserForm, LoginForm, UserProfileForm, ChildProfileForm
-from forms import FavoriteRecipeForm, ShareRecipeForm
+from forms import FavoriteRecipeForm, ShareRecipeForm, ReplyForm
+from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 import requests
 
@@ -138,7 +139,7 @@ def user_page(user_id):
     user_profile = User_profile.query.filter_by(user_id = user_id).first()
     child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
     favorite_recipes = Favorite_recipe.query.filter(Favorite_recipe.user_id == user_id).all()
-    msgs = Message.query.filter(Message.follower == user_id).all()
+    msgs = Message.query.filter(Message.follower == user_id).order_by(Message.timestamp.desc()).all()
 
     return render_template('user-info.html', user=user, user_profile=user_profile, 
                 child_profiles=child_profiles, following=user.following, 
@@ -243,9 +244,13 @@ def user_profile_page(user_id):
         else:
             yes_food_list = []
 
+        if profile.intolerances:
+            intolerances_list = profile.intolerances.split()
+
         return render_template('user-profile.html', user=user, profile=profile,
                     child_profiles=child_profiles, no_foods=no_food_list, 
-                    yes_foods=yes_food_list, diet=profile.diet_id)
+                    yes_foods=yes_food_list, diet=profile.diet_id, 
+                    intolerances=intolerances_list)
 
     else:
         form = UserProfileForm()
@@ -256,11 +261,12 @@ def user_profile_page(user_id):
             yes_foods = form.yes_foods.data
             diet = form.diet.data
             diet_name = Diet.query.get(diet).diet
+            intolerances = form.intolerances.data
 
 
             new_profile = User_profile(user_id=user_id, owner=user.username, 
                     no_foods=no_foods, yes_foods=yes_foods, diet_id=diet, 
-                    diet_name=diet_name)
+                    diet_name=diet_name, intolerances=intolerances)
             db.session.add(new_profile)
             db.session.commit()
             flash('Hooray! New profile added!', 'success')
@@ -268,7 +274,7 @@ def user_profile_page(user_id):
         
     return render_template('user-profile.html', user=user, form=form)
 
-@app.route('/users/profile/edit/<int:user_id>', methods=['GET','PATCH'])
+@app.route('/users/profile/edit/<int:user_id>', methods=['GET','POST'])
 def edit_user_profile(user_id):
     """ render form to edit user profile
         redirect to user page """
@@ -290,6 +296,7 @@ def edit_user_profile(user_id):
         profile.yes_foods = form.yes_foods.data
         profile.diet_id = form.diet.data       
         profile.diet_name = Diet.query.get(profile.diet_id).diet
+        profile.intolerances = form.intolerances.data
         db.session.commit()
         flash(f"{user.username}'s profile edited", 'success')
         return redirect(f"/users/profile/{user.id}")
@@ -321,10 +328,11 @@ def create_child_profile(user_id):
         yes_foods = form.yes_foods.data
         diet = form.diet.data
         diet_name = Diet.query.get(diet).diet
+        intolerances = form.intolerances.data
 
         new_profile = Child_profile(name=name, user_profile_id=user_profile_id, 
                 user_id=user_id, no_foods=no_foods, yes_foods=yes_foods, diet_id=diet, 
-                diet_name=diet_name)
+                diet_name=diet_name, intolerances=intolerances)
         db.session.add(new_profile)
         db.session.commit()
         flash('Hooray! New profile added!', 'success')
@@ -350,12 +358,17 @@ def view_child_profile(child_profile_id):
     else:
         yes_food_list = []
 
+    if profile.intolerances:
+        intolerances_list = profile.intolerances.split()
+    else:
+        intolerances_list = []
+
     
 
     return render_template('child-profile.html', profile=profile, user=user, no_foods=no_food_list, 
-                    yes_foods=yes_food_list)
+                    yes_foods=yes_food_list, intolerances=intolerances_list)
 
-@app.route('/profiles/child/edit/<int:child_profile_id>', methods=['GET', 'PATCH'])
+@app.route('/profiles/child/edit/<int:child_profile_id>', methods=['GET', 'POST'])
 def edit_child_profile(child_profile_id):
     """ edit child profile page """
 
@@ -378,6 +391,7 @@ def edit_child_profile(child_profile_id):
         profile.yes_foods = form.yes_foods.data
         profile.diet_id = form.diet.data       
         profile.diet_name = Diet.query.get(profile.diet_id).diet
+        profile.intolerances = form.intolerances.data
         db.session.commit()
         flash(f"Profile {profile.name} edited", 'success')
         return redirect(f"/profiles/child/{profile.id}")
@@ -416,6 +430,7 @@ def show_user_recipe_results(user_id):
     profile = User_profile.query.filter_by(user_id = user_id).first()
     no_food_list = profile.no_foods.split()
     yes_food_list = profile.yes_foods.split()
+    intolerances_list = profile.intolerances.split()
     print(no_food_list)
     print(yes_food_list)
 
@@ -423,6 +438,7 @@ def show_user_recipe_results(user_id):
                     'includeIngredients':yes_food_list,
                     'excludeIngredients':no_food_list,
                     'diet':profile.diet_name,
+                    'intolerances':intolerances_list,
                     'sort':'random'}
 
     res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
@@ -442,10 +458,12 @@ def show_child_recipe_results(child_profile_id):
     user = User.query.get_or_404(id)
     no_food_list = profile.no_foods.split()
     yes_food_list = profile.yes_foods.split()
+    intolerances_list = profile.intolerances.split()
     querystring = {'number':'25',
                     'includeIngredients':yes_food_list,
                     'excludeIngredients':no_food_list,
                     'diet':profile.diet_name,
+                    'intolerances':intolerances_list,
                     'sort':'random'}
 
     res = requests.request('GET', URL + "recipes/complexSearch", headers=HEADERS, params=querystring).json()
@@ -534,11 +552,12 @@ def send_recipe(recipe_id):
         recipe_name = res['title']
         api_recipe_id = recipe_id   
         user_id = user.id
+        username = user.username
         follower = form.follower.data
         message = form.message.data
 
         new_share = Message(recipe_name=recipe_name, api_recipe_id=api_recipe_id, 
-                user_id=user_id, follower=follower, message=message)
+                user_id=user_id, username=username, follower=follower, message=message)
         db.session.add(new_share)
         db.session.commit()
         flash('Recipe shared.', 'success')
@@ -546,3 +565,34 @@ def send_recipe(recipe_id):
 
     return render_template('share.html', recipe=res, user=user, followers=followers, 
                             form=form)    
+
+@app.route('/messages/<int:message_id>/reply', methods=['GET', 'POST'])
+def reply_to_message(message_id):
+    """ reply to shared recipe message """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect('/')
+
+    if CURR_USER_KEY not in session:
+        flash('Please log in first!', 'danger')
+        return redirect('/')
+
+    user = User.query.get_or_404(session[CURR_USER_KEY])
+    message = Message.query.get_or_404(message_id)
+
+    form = ReplyForm()
+    if form.validate_on_submit():
+        message_id = message.id
+        sender_id = user.id
+        recipient_id = message.user_id
+        message = form.message.data
+
+        new_reply = Reply(message_id=message_id, sender_id=sender_id, recipient_id=recipient_id,
+                            message=message)
+        db.session.add(new_reply)
+        db.session.commit()
+        flash('Reply sent.', 'success')
+        return redirect(f"/users/{user.id}")
+
+    return render_template('reply.html', message=message, user=user, form=form)

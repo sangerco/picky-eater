@@ -32,6 +32,14 @@
             {% if profile.diet_id %}
             <p class=><strong>Diet:</strong> {{ profile.diet_name }}</p>
             {% endif %}
+            {% if intolerances %}
+            <p class=><strong>Intolerances</strong></p>
+            <ul class="list-group list-group-flush">
+                {% for int in intolerances %}
+                <li class="list-group-item">{{ int.strip(',') }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
         </div>
         <div class="col-md-2">
             <div class="float-right">

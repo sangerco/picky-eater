@@ -93,6 +93,14 @@ class Diet(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     diet = db.Column(db.Text, unique=True)
 
+class Intolerance(db.Model):
+    """ simple table for intolerance select field on profiles pages """
+
+    __tablename__ = 'intolerances'
+
+    code = db.Column(db.Text, primary_key=True)
+    intolerance = db.Column(db.Text, unique=True)
+
 class User_profile(db.Model):
     """ generate table for user likes and dislikes """
 
@@ -105,7 +113,7 @@ class User_profile(db.Model):
     yes_foods = db.Column(db.Text, default=None)
     diet_id = db.Column(db.Integer, default=None)
     diet_name = db.Column(db.Text, db.ForeignKey('diets.diet'))
-
+    intolerances = db.Column(db.Text, default=None)
 
 class Child_profile(db.Model):
     """ generate table for profiles that are children of user profile """
@@ -123,6 +131,7 @@ class Child_profile(db.Model):
     yes_foods = db.Column(db.Text, default=None)
     diet_id = db.Column(db.Integer, default=None)
     diet_name = db.Column(db.Text, db.ForeignKey('diets.diet', ondelete='cascade'))
+    intolerances = db.Column(db.Text, default=None)
 
 
 class Favorite_recipe(db.Model):
@@ -146,19 +155,6 @@ class Favorite_recipe(db.Model):
     rating = db.Column(db.Integer, default=None)
 
 
-class Shopping_list(db.Model):
-    """ provide table for shopping list """
-
-    __tablename__ = 'shopping_lists'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_profile_id = db.Column(
-                        db.Integer, 
-                        db.ForeignKey('user_profiles.id', ondelete='cascade')
-                        )
-    api_shopping_list_id = db.Column(db.Integer, nullable=False)
-    notes = db.Column(db.Text)
-
 class Message(db.Model):
     """ provide functionality for sending recipes to following user """
 
@@ -179,6 +175,22 @@ class Message(db.Model):
                         db.Integer,
                         db.ForeignKey('users.id', ondelete='cascade')
                         )
+    message = db.Column(db.Text)
+    timestamp = db.Column(
+                        db.DateTime,
+                        nullable=False,
+                        default=datetime.utcnow(),
+    )
+
+class Reply(db.Model):
+    """ functionality to reply to shared recipes """
+
+    __tablename__ = 'replies'    
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'))
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
     message = db.Column(db.Text)
     timestamp = db.Column(
                         db.DateTime,

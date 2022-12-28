@@ -32,7 +32,7 @@
         </div>
         <div class="col-md-6">
             <h5 class="p-3 border bg-light">{{ recipe['title'] }}</h5>
-            <div class="p-3 border bg-light">{{ recipe['summary'] }}</div>
+            <div class="p-3 border bg-light">{{ recipe['summary']|safe }}</div>
         </div>
         <div class="col-md-2">
             <a href="/recipes/{{ recipe['id'] }}/favorite" class="user-btn btn btn-success" role="button">Favorite</a>

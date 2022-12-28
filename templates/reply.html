@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Reply to share{% endblock %}
+
+{% block content%}
+
+<div class="container px-4">
+    <h3>Reply to {{ message.username }}'s share?</h3>
+    <div class="row gx-5">
+        <div class="col-md-6">
+            <div class="p-3 border bg-light">
+                <img src="{{ user.image }}" class="mr-3" alt="Photo of {{ user.username }}" width="300px" height="auto">
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="p-3 border bg-light">
+                <p>{{ message.username }} has shared a recipe with you.</p>
+            </div>
+            <div class="p-3 border bg-light">
+                <a href="/recipes/{{ message.api_recipe_id }}">{{ message.recipe_name }}</a>
+            </div>
+            <div class="p-3 border bg-light">
+                <p>{{ message.message }}</p>
+            </div>
+            <div class="p-3 border bg-light">
+                {% for msg in get_flashed_messages() %}
+                <div class="bg-success text-light">{{ msg }}</div>
+                {% endfor %}
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    {% for field in form
+                    if field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                        {{ field.label }}
+                        {{ field(class="form-control") }}
+                        {% for err in field.errors %}
+                        <small class="form-text text-danger">
+                            {{ err }}
+                        </small>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <button class="user-btn btn btn-success btn-large">Reply</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

@@ -128,6 +128,10 @@
                 <div class="p-3 border bg-light">
                     <p>{{ msg.message }}</p>
                 </div>
+                <div class="p-3 border bg-light">
+                    <a href="/messages/{{ msg.id }}/reply" class="user-btn btn btn-primary btn-sm"
+                        role="button">Reply</a>
+                </div>
             </div>
             {% endfor %}
             {% endif %}
