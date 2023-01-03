@@ -52,7 +52,7 @@
                     {{ form.hidden_tag() }}
                     {% for field in form
                     if field.widget.input_type != 'hidden' %}
-                    <div class="form-group">
+                    <div class="form-group text-serif">
                         {{ field.label }}
                         {{ field(class="form-control") }}
                         {% for err in field.errors %}

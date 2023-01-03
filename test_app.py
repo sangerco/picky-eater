@@ -7,7 +7,7 @@ from models import db, Follows, User, User_profile, Child_profile, Favorite_reci
 from models import Diet, Reply, Message
 
 
-os.environ['DATABASE_URL'] = "postgresql:///picky-eater-test"
+os.environ['DATABASE_URI'] = "postgresql:///picky-eater-test"
 
 from app import app, CURR_USER_KEY, URL, API_HOST, API_SECRET_KEY, HEADERS
 
