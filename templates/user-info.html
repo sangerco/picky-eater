@@ -22,10 +22,10 @@
                                     <a href="/users/{{ user.id }}" class="card-link">
                                         <img src="{{ user.image }}" alt="Image for {{ user.username }}"
                                             class="card-image" width="150px" height="auto">
-                                        <p>@{{ user.username }}</p>
+                                        <p>{{ user.username }}</p>
                                     </a>
                                     <form method='POST' action="/users/unfollow/{{ user.id }}">
-                                        <button class="btn btn-outline-danger btn-sm">Stop following</button>
+                                        <button class="user-btn btn btn-outline-danger btn-sm">Stop following</button>
                                     </form>
                                 </div>
                             </div>

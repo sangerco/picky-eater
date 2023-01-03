@@ -15,7 +15,7 @@ db.create_all()
 
 app.config['WTF_CSRF_ENABLED'] = False
 
-class TestUserFunctionsTestCase(TestCase):
+class UserFunctionsTestCase(TestCase):
     """ test for user funcionalities """
 
     def setUp(self):

@@ -1,14 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Chivo+Mono&display=swap');
+@font-face {
+    font-family: "Almondlatte";
+    src: url('/static/fonts/almondlatte.regular.ttf') format(truetype);
+} 
 
 body {
-    font-family: 'Chivo Mono', monospace;
+    font-family: 'Almondlatte', monospace;
+    font-size: 2.5em;
   }
 
+.navbar-brand {
+    font-size: 2em;
+}
+
+.navbar-text {
+    font-size: 2em;
+}
 
 .user-btn {
     width: 186px;
     margin: 3px;
     padding: 3px;
+    font-size: .75em;
+}
+
+.user-btn-sm {
+    width: 186px;
+    margin: 3px;
+    padding: 3px;
+    font-size: 0.5em;
 }
 
 .user-img {
@@ -30,4 +49,20 @@ body {
     margin-bottom: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
+}
+
+.msg-box {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.text-serif {
+    font-family: sans-serif;
+    font-size: medium;
+}
+
+.card-contents {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: 1px;
 }
