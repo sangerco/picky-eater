@@ -139,15 +139,15 @@ def user_page(user_id):
     user_profile = User_profile.query.filter_by(user_id = user_id).first()
     child_profiles = Child_profile.query.filter(Child_profile.user_id == user_id).all()
     favorite_recipes = Favorite_recipe.query.filter(Favorite_recipe.user_id == user_id).all()
-    msgs = Message.query.filter(Message.follower == user_id).order_by(Message.timestamp.desc()).all()
-    replies = Reply.query.filter(Reply.recipient_id == user_id).order_by(Reply.timestamp.desc()).all()
+    msgs = Message.query.filter(Message.follower == user_id).order_by(desc(Message.timestamp)).all()
+    replies = Reply.query.filter(Reply.recipient_id == user_id).order_by(desc(Reply.timestamp)).all()
 
     return render_template('user-info.html', user=user, user_profile=user_profile, 
                 child_profiles=child_profiles, following=user.following, 
                 followers=user.followers, favorite_recipes=favorite_recipes, msgs=msgs,
                 replies=replies)
 
-@app.route('/users/edit/<int:user_id>', methods=['GET', 'PATCH'])
+@app.route('/users/edit/<int:user_id>', methods=['GET', 'POST'])
 def edit_account(user_id):
     """ render form to edit account """
 
@@ -214,7 +214,7 @@ def unfollow_user(follow_id):
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    return redirect(f'/users')
+    return redirect(f'/users/{g.user.id}')
 
 @app.route('/users/profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile_page(user_id):
@@ -432,11 +432,19 @@ def show_user_recipe_results(user_id):
 
     user = User.query.get_or_404(user_id)
     profile = User_profile.query.filter_by(user_id = user_id).first()
-    no_food_list = profile.no_foods.split()
-    yes_food_list = profile.yes_foods.split()
-    intolerances_list = profile.intolerances.split()
-    print(no_food_list)
-    print(yes_food_list)
+    if profile.no_foods:
+        no_food_list = profile.no_foods.split()
+    else:
+        no_food_list = []
+    if profile.yes_foods:
+        yes_food_list = profile.yes_foods.split()
+    else:
+        yes_food_list = []
+    if profile.intolerances:
+        intolerances_list = profile.intolerances.split()
+    else:
+        intolerances_list = []
+
 
     querystring = {'number':'25',
                     'includeIngredients':yes_food_list,
@@ -460,9 +468,18 @@ def show_child_recipe_results(child_profile_id):
     profile = Child_profile.query.get_or_404(child_profile_id)
     id = Child_profile.query.get_or_404(child_profile_id).user_id
     user = User.query.get_or_404(id)
-    no_food_list = profile.no_foods.split()
-    yes_food_list = profile.yes_foods.split()
-    intolerances_list = profile.intolerances.split()
+    if profile.no_foods:
+        no_food_list = profile.no_foods.split()
+    else:
+        no_food_list = []
+    if profile.yes_foods:
+        yes_food_list = profile.yes_foods.split()
+    else:
+        yes_food_list = []
+    if profile.intolerances:
+        intolerances_list = profile.intolerances.split()
+    else:
+        intolerances_list = []
     querystring = {'number':'25',
                     'includeIngredients':yes_food_list,
                     'excludeIngredients':no_food_list,
@@ -570,7 +587,28 @@ def send_recipe(recipe_id):
     return render_template('share.html', recipe=res, user=user, followers=followers, 
                             form=form)    
 
-@app.route('/messages/<int:message_id>/reply', methods=['GET', 'POST'])
+@app.route('/messages/delete/<int:message_id>', methods=['POST'])
+def delete_message(message_id):
+    """ delete individual message """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect('/')
+
+    if CURR_USER_KEY not in session:
+        flash('Please log in first!', 'danger')
+        return redirect('/')
+
+    user = User.query.get_or_404(session[CURR_USER_KEY])
+    message = Message.query.get_or_404(message_id)
+    db.session.delete(message)
+    db.session.commit()
+
+    return redirect(f'/users/{user.id}')
+
+
+
+@app.route('/messages/reply/<int:message_id>', methods=['GET', 'POST'])
 def reply_to_message(message_id):
     """ reply to shared recipe message """
 
@@ -589,14 +627,35 @@ def reply_to_message(message_id):
     if form.validate_on_submit():
         message_id = message.id
         sender_id = user.id
+        sender_name = user.username
         recipient_id = message.user_id
+        recipe_name = message.recipe_name
         message = form.message.data
 
-        new_reply = Reply(message_id=message_id, sender_id=sender_id, recipient_id=recipient_id,
-                            message=message)
+        new_reply = Reply(message_id=message_id, sender_id=sender_id, sender_name=sender_name, 
+                            recipient_id=recipient_id, recipe_name=recipe_name, message=message)
         db.session.add(new_reply)
-        db.session.commit()
+        db.session.commit()       
         flash('Reply sent.', 'success')
         return redirect(f"/users/{user.id}")
 
     return render_template('reply.html', message=message, user=user, form=form)
+
+@app.route('/replies/delete/<int:reply_id>', methods=['POST'])
+def delete_reply(reply_id):
+    """ functionality to delete individual reply """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect('/')
+
+    if CURR_USER_KEY not in session:
+        flash('Please log in first!', 'danger')
+        return redirect('/')
+
+    user = User.query.get_or_404(session[CURR_USER_KEY])
+    reply = Reply.query.get_or_404(reply_id)   
+    db.session.delete(reply)
+    db.session.commit()
+
+    return redirect(f'/users/{user.id}')      

@@ -162,7 +162,9 @@ class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'))
     sender_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
+    sender_name = db.Column(db.Text)
     recipient_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
+    recipe_name = db.Column(db.Text)
     message = db.Column(db.Text)
     timestamp = db.Column(
                         db.DateTime,
@@ -198,24 +200,3 @@ class Message(db.Model):
                         nullable=False,
                         default=datetime.utcnow(),
     )
-    replies = db.relationship('Reply', 
-                                secondary = 'messages_replies',
-                                backref = 'messages')
-
-
-class MessageReply(db.Model):
-    ''' mapping table for messages and replies '''
-
-    __tablename__ = 'messages_replies'
-
-    message_id = db.Column(
-                            db.Integer,
-                            db.ForeignKey('messages.id'),
-                            primary_key=True
-                            )
-
-    reply_id = db.Column(
-                            db.Integer,
-                            db.ForeignKey('replies.id'),
-                            primary_key=True
-                            )

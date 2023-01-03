@@ -129,8 +129,10 @@
                     <p>{{ msg.message }}</p>
                 </div>
                 <div class="p-3 border bg-light">
-                    <a href="/messages/{{ msg.id }}/reply" class="user-btn btn btn-primary btn-sm"
+                    <a href="/messages/reply/{{ msg.id }}" class="user-btn btn btn-primary btn-sm"
                         role="button">Reply</a>
+                    <a href="/messages/delete/{{ msg.id }}" class="user-btn btn btn-danger btn-sm"
+                        role="button">Delete</a>
                 </div>
                 {% if msg.replies %}
                 {% for reply in msg.replies %}
@@ -144,7 +146,11 @@
                 {% if replies %}
                 {% for reply in replies %}
                 <div class="p-3 border bg-light">
+                    <p>{{ reply.sender_name }} replied to your share of this recipe:</p>
+                    <p>{{ reply.recipe_name }}</p>
                     <p>{{ reply.message }}</p>
+                    <a href="/replies/delete/{{ reply.id }}" class="user-btn btn btn-danger btn-sm"
+                        role="button">Delete</a>
                 </div>
                 {% endfor %}
                 {% endif %}
