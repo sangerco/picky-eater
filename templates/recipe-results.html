@@ -20,13 +20,15 @@
         {% for recipe in recipes %}
         <div class="col-sm-3"></div>
         <div class="col-sm-6">
-            <div class="card" style="width: 300px">
-                <img src="{{ recipe['image'] }}" alt="Image for {{ recipe['title'] }}">
-                <div class="card-bod">
-                    <h5 class="card-title">{{ recipe['title'] }}</h5>
-                </div>
-                <div class="card-body">
-                    <a href="/recipes/{{ recipe['id'] }}" class="card-link">{{ recipe['title'] }}</a>
+            <div class="recipe-box">
+                <div class="card" style="width: 300px">
+                    <img src="{{ recipe['image'] }}" alt="Image for {{ recipe['title'] }}">
+                    <div class="card-bod">
+                        <h5 class="card-title display-6">{{ recipe['title'] }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="/recipes/{{ recipe['id'] }}" class="card-link">{{ recipe['title'] }}</a>
+                    </div>
                 </div>
             </div>
         </div>

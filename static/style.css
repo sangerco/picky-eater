@@ -21,6 +21,7 @@ body {
     margin: 3px;
     padding: 3px;
     font-size: .75em;
+    justify-content: start;
 }
 
 .user-btn-sm {
@@ -31,13 +32,6 @@ body {
 }
 
 .user-img {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.recipe-box {
     margin-top: 10px;
     margin-bottom: 10px;
     padding-top: 10px;
@@ -65,4 +59,9 @@ body {
     margin-top: 5px;
     margin-bottom: 5px;
     border: 1px;
+}
+
+.footer {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: small;
 }

@@ -16,17 +16,20 @@
                     {% if following %}
                     {% for user in following %}
                     <div class="col">
-                        <div class="p-3 border bg-light">
-                            <div class="card-inner">
-                                <div class="card-contents">
-                                    <a href="/users/{{ user.id }}" class="card-link">
-                                        <img src="{{ user.image }}" alt="Image for {{ user.username }}"
-                                            class="card-image" width="150px" height="auto">
-                                        <p>{{ user.username }}</p>
-                                    </a>
-                                    <form method='POST' action="/users/unfollow/{{ user.id }}">
-                                        <button class="user-btn btn btn-outline-danger btn-sm">Stop following</button>
-                                    </form>
+                        <div class="recipe-box">
+                            <div class="p-3 border bg-light">
+                                <div class="card-inner">
+                                    <div class="card-contents">
+                                        <a href="/users/{{ user.id }}" class="card-link">
+                                            <img src="{{ user.image }}" alt="Image for {{ user.username }}"
+                                                class="card-image" width="150px" height="auto">
+                                            <p>{{ user.username }}</p>
+                                        </a>
+                                        <form method='POST' action="/users/unfollow/{{ user.id }}">
+                                            <button class="user-btn btn btn-outline-danger btn-sm">Stop
+                                                following</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -59,15 +62,15 @@
             </div>
         </div>
         <div class="col-md-5">
-            <p class="display-6">{{ user.username }}</p>
+            <p class="display-2">{{ user.username }}</p>
             <ul>
                 <li>
-                    <a href="/users/profile/{{ user.id }}">{{ user.username }}'s Profile</a>
+                    <a class='display-6' href="/users/profile/{{ user.id }}">{{ user.username }}'s Profile</a>
                 </li>
                 <ul>
                     {% for cp in child_profiles %}
                     <li>
-                        <a href="/profiles/child/{{ cp.id }}">{{ cp.name }}</a>
+                        <a class='display-6' href="/profiles/child/{{ cp.id }}">{{ cp.name }}</a>
                     </li>
                     {% endfor %}
                 </ul>
@@ -98,19 +101,27 @@
                 </div>
             </div>
             {% if g.user.id == user.id %}
-            <a href="/users/edit/{{ user.id }}" class="user-btn btn btn-outline-success">Edit Account</a>
-            <form method="POST" action="/users/delete/{{ user.id }}" class="form-inline">
-                <button class="user-btn btn btn-outline-danger">Delete Account</button>
-            </form>
+            <div class="row">
+                <a href="/users/edit/{{ user.id }}" class="user-btn btn btn-outline-success">Edit Account</a>
+            </div>
+            <div class="row">
+                <form method="POST" action="/users/delete/{{ user.id }}" class="form-inline">
+                    <button class="user-btn btn btn-outline-danger">Delete Account</button>
+                </form>
+            </div>
             {% elif g.user %}
             {% if g.user.is_following(user) %}
-            <form method="POST" action="/users/unfollow/{{ user.id }}">
-                <button class="user-btn btn btn-primary">Stop Following</button>
-            </form>
+            <div class="row">
+                <form method="POST" action="/users/unfollow/{{ user.id }}">
+                    <button class="user-btn btn btn-primary">Stop Following</button>
+                </form>
+            </div>
             {% else %}
-            <form method="post" action="/users/follow/{{ user.id }}">
-                <button class="user-btn btn btn-primary">Follow</button>
-            </form>
+            <div class="row">
+                <form method="post" action="/users/follow/{{ user.id }}">
+                    <button class="user-btn btn btn-primary">Follow</button>
+                </form>
+            </div>
             {% endif %}
             {% endif %}
             <br>

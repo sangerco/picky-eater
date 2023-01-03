@@ -6,12 +6,46 @@
 {% block content%}
 
 <div class="container">
-    <img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto">
-    <div class="row justify-content-end">
+    {% if profile %}
+    <div class="row align-items-start">
+        <div class="col-2"><img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto"></div>
+        <div class="col-8">
+            <h1 class="display-5"><strong>{{ profile.owner }}'s Profile</strong></h1>
+            <br>
+            {% if no_foods %}
+            <p><strong>{{ profile.owner }}'s No Thank You Foods</strong></p>
+            <ul class="list-group list-group-flush">
+                {% for nf in no_foods %}
+                <li class="list-group-item">{{ nf.strip(',') }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if yes_foods %}
+            <p class=><strong>{{ profile.owner }}'s Yes Please Foods</strong></p>
+            <ul class="list-group list-group-flush">
+                {% for yf in yes_foods %}
+                <li class="list-group-item">{{ yf.strip(',') }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if profile.diet_id %}
+            <p class=><strong>{{ user.username }}'s diet:</strong> {{ profile.diet_name }}</p>
+            {% endif %}
+            {% if intolerances %}
+            <p class=><strong>{{ profile.owner }}'s Intolerances</strong></p>
+            <ul class="list-group list-group-flush">
+                {% for int in intolerances %}
+                <li class="list-group-item">{{ int.strip(',') }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
         <div class="col-md-2">
             <div class="float-right">
                 {% if g.user.id == user.id %}
-                <a class="user-btn btn btn-secondary btn-lg" href="/users/{{ user.id }}" role="button">Go Back</a>
+                <div class="row">
+                    <a class="user-btn btn btn-secondary btn-lg" href="/users/{{ user.id }}" role="button">Go Back</a>
+                </div>
                 {% if profile %}
                 <div class="row">
                     <a class="user-btn btn btn-primary btn-lg" href="/users/profile/edit/{{ user.id }}"
@@ -50,41 +84,6 @@
             </div>
         </div>
     </div>
-    {% if profile %}
-    <div class="row align-items-start">
-        <div class="col-2"></div>
-        <div class="col-8">
-            <h1 class="display-5"><strong>{{ profile.owner }}'s Profile</strong></h1>
-            <br>
-            {% if no_foods %}
-            <p><strong>{{ profile.owner }}'s No Thank You Foods</strong></p>
-            <ul class="list-group list-group-flush">
-                {% for nf in no_foods %}
-                <li class="list-group-item">{{ nf.strip(',') }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% if yes_foods %}
-            <p class=><strong>{{ profile.owner }}'s Yes Please Foods</strong></p>
-            <ul class="list-group list-group-flush">
-                {% for yf in yes_foods %}
-                <li class="list-group-item">{{ yf.strip(',') }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% if profile.diet_id %}
-            <p class=><strong>{{ user.username }}'s diet:</strong> {{ profile.diet_name }}</p>
-            {% endif %}
-            {% if intolerances %}
-            <p class=><strong>{{ profile.owner }}'s Intolerances</strong></p>
-            <ul class="list-group list-group-flush">
-                {% for int in intolerances %}
-                <li class="list-group-item">{{ int.strip(',') }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-    </div>
     {% else %}
     {% if g.user == user %}
     <div class="container">
@@ -115,8 +114,6 @@
     </div>
     {% endif %}
     {% endif %}
-
-
 </div>
 
 
