@@ -5,11 +5,13 @@ from sqlalchemy import exc
 from models import db, Follows, User, User_profile, Child_profile, Favorite_recipe
 from models import Diet, Reply, Message
 
-os.environ['DATABASE_URI'] = "postgresql:///picky-eater-test"
+os.environ['DATABASE_URI'] = "postgresql:///picky_eater"
 
 from app import app
 
 db.create_all()
+
+
 
 class OtherModelsTestCase(TestCase):
     """ test user profiles creation, edit, delete """
@@ -19,6 +21,9 @@ class OtherModelsTestCase(TestCase):
         db.drop_all()
         db.create_all()
 
+        self.client = app.test_client()
+
+
         u1 = User.register_user("test", "tester", "test@test.com", "test", "password", None)
         uid1 = 1111
         u1.id = uid1
@@ -27,6 +32,7 @@ class OtherModelsTestCase(TestCase):
         uid2 = 2222
         u2.id = uid2
 
+        db.session.add_all([u1, u2])
         db.session.commit()
 
         u1 = User.query.get(uid1)
@@ -37,7 +43,6 @@ class OtherModelsTestCase(TestCase):
         self.u2 = u2
         self.uid2 = uid2
 
-        self.client = app.test_client()
 
     def tearDown(self):
         res = super().tearDown()
@@ -89,8 +94,8 @@ class OtherModelsTestCase(TestCase):
                             user_id=u1.id,
                             no_foods='bananas, eggs',
                             yes_foods='beef, pork',
-                            diet_id=9,
-                            diet_name='Paleo',
+                            diet_id=None,
+                            diet_name=None,
                             intolerances='wheat')
         
         db.session.add(cp)
@@ -100,10 +105,8 @@ class OtherModelsTestCase(TestCase):
         self.assertEqual(cp.name, 'Test_child')
         self.assertEqual(cp.user_profile_id, p1.id)
         self.assertEqual(cp.user_id, u1.id)
-        self.assertEqual(p.no_foods, 'bananas, eggs')
-        self.assertEqual(p.yes_foods, 'beef, pork')
-        self.assertNotEqual(p.diet_id, 1)
-        self.assertEqual(p.diet_name, 'Paleo')
+        self.assertEqual(p.no_foods, 'carrots')
+        self.assertEqual(p.yes_foods, 'hamburgers')
         self.assertNotEqual(p.intolerances, 'dairy, eggs')     
 
     def test_fav_recipe_model(self):

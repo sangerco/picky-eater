@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, User_profile, Child_profile
@@ -20,12 +21,14 @@ HEADERS = {
   'x-rapidapi-host': API_HOST,
   'x-rapidapi-key': API_SECRET_KEY,
   }
-
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///picky_eater"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "finn_is_awesome"
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+if app.config['TESTING'] is True:
+    os.environ['DATABASE_URI'] = "postgresql:///picky-eater-test"
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///picky_eater"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ECHO"] = True
+    app.config["SECRET_KEY"] = "finn_is_awesome"
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 app.app_context().push()
 connect_db(app)

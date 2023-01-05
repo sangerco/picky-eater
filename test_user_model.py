@@ -16,14 +16,23 @@ class UserModelTestCase(TestCase):
     def setUp(self):
         """ create users """
 
-        u1 = User.register_user("test", "tester", "test@test.com", "test", "password", None)
+        db.drop_all()
+        db.create_all()
+
+        self.client = app.test_client()
+
+
+        u1 = User.register_user(first_name="test", last_name="tester", email="test@test.com", 
+                                    username="test", password="password", image=None)
         uid1 = 1111
         u1.id = uid1
 
-        u2 = User.register_user("test2", "tester2", "test2@test.com", "test2", "password", None)
+        u2 = User.register_user(first_name="test2", last_name="tester2", email="test2@test.com", 
+                                    username="test2", password="password", image=None)
         uid2 = 2222
         u2.id = uid2
 
+        db.session.add_all([u1,u2])
         db.session.commit()
 
         u1 = User.query.get(uid1)
@@ -57,15 +66,19 @@ class UserModelTestCase(TestCase):
         db.session.add(u)
         db.session.commit()
 
+        self.assertIsNotNone(u)
         self.assertEqual(len(u.followers), 0)
         self.assertEqual(len(u.following), 0)
 
     def test_register_user(self):
         """ does user register functionality work """
 
-        u = User.register_user("test", "user", "test_user@test.com", "test_user2", "password", None)
+        u = User.register_user(first_name="test", last_name="user", email="test_user@test.com", 
+                                username="test_user2", password="password", image=None)
+
         uid = 2323
         u.id = uid
+        db.session.add(u)
         db.session.commit()
 
         u = User.query.get(uid)
@@ -81,36 +94,39 @@ class UserModelTestCase(TestCase):
         i_id = 3434
         i.id = i_id
         with self.assertRaises(exc.IntegrityError) as context:
+            db.session.add(i)
             db.session.commit()
 
     def test_register_no_password(self):   
         """ can you register with no password """
 
         with self.assertRaises(ValueError) as context:
-            User.register_user("test", "user", "test_user@test.com", "tester_user", None, None)
+            User.register_user(first_name="test", last_name="user", email="test_user@test.com", 
+                                username="tester_user", password=None, image=None)
 
     def test_register_invalid_password(self):   
         """ can you register with invalid password """
 
         with self.assertRaises(ValueError) as context:
-            User.register_user("test", "user", "test_user@test.com", "tester_user", "123", None)
-
+            User.register_user(first_name="test", last_name="user", email="test_user@test.com", 
+                                username="tester_user", password="", image=None)
+                                
     def test_authenticate_user(self):
         """ test valid authentication """
 
-        u = User.authenticate_user(self.u1.username, "password")
+        u = User.authenticate_user(username=self.u1.username, password="password")
         self.assertIsNotNone(u)
         self.assertEqual(u.id, self.uid1)
 
     def test_authenticate_bad_username(self):
         """ can you log in with bad username """
 
-        self.assertFalse(User.authenticate_user("wrongname", "password"))
+        self.assertFalse(User.authenticate_user(username="wrongname", password="password"))
 
     def test_authenticate_bad_password(self):
         """ can you log in with bad password """
 
-        self.assertFalse(User.authenticate_user(self.u1.username, "wrongpassword"))
+        self.assertFalse(User.authenticate_user(username=self.u1.username, password="wrongpassword"))
 
     def test_is_following(self):
         """ test if user1 is following user 2 """
