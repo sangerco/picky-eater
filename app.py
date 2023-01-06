@@ -25,7 +25,7 @@ HEADERS = {
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///picky_eater"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
-app.config["SECRET_KEY"] = "finn_is_awesome"
+app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY', 'thisisthebackupsecret')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 app.app_context().push()
