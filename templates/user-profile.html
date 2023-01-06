@@ -8,8 +8,9 @@
 <div class="container">
     {% if profile %}
     <div class="row align-items-start">
-        <div class="col-2"><img src="{{ user.image }}" alt="{{ user.username }}" width="200px" height="auto"></div>
-        <div class="col-8">
+        <div class="col-md-4"><img src="{{ user.image }}" class="user-img rounded float-start" alt="{{ user.username }}"
+                width="300px" height="auto"></div>
+        <div class="col-md-6">
             <h1 class="display-5"><strong>{{ profile.owner }}'s Profile</strong></h1>
             <br>
             {% if no_foods %}
@@ -44,21 +45,20 @@
             <div class="float-right">
                 {% if g.user.id == user.id %}
                 <div class="row">
-                    <a class="user-btn btn btn-secondary btn-lg" href="/users/{{ user.id }}" role="button">Go Back</a>
+                    <a class="user-btn btn btn-secondary" href="/users/{{ user.id }}" role="button">Go Back</a>
                 </div>
                 {% if profile %}
                 <div class="row">
-                    <a class="user-btn btn btn-primary btn-lg" href="/users/profile/edit/{{ user.id }}"
-                        role="button">Edit
+                    <a class="user-btn btn btn-primary" href="/users/profile/edit/{{ user.id }}" role="button">Edit
                         Profile</a>
                 </div>
                 <div class="row">
-                    <a class="user-btn btn btn-info btn-lg" href="/users/child-profile/{{ user.id }}/new"
-                        role="button">Create Child Profile</a>
+                    <a class="user-btn btn btn-info" href="/users/child-profile/{{ user.id }}/new" role="button">Create
+                        Child Profile</a>
                 </div>
                 <div class="row">
-                    <a class="user-btn btn btn-success btn-lg" href='/users/profile/{{ user.id }}/recipes'
-                        role="button">Get Recipes Now!</a>
+                    <a class="user-btn btn btn-success" href='/users/profile/{{ user.id }}/recipes' role="button">Get
+                        Recipes Now!</a>
                 </div>
                 {% endif %}
                 {% elif g.user %}

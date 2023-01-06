@@ -5,7 +5,7 @@ from sqlalchemy import exc
 from models import db, Follows, User, User_profile, Child_profile, Favorite_recipe
 from models import Diet, Reply, Message
 
-os.environ['DATABASE_URI'] = "postgresql:///picky_eater"
+os.environ['DATABASE_URL'] = "postgresql:///picky-eater-test"
 
 from app import app
 

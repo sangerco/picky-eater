@@ -43,10 +43,10 @@ db.session.commit()
 
 User.query.delete()
 
-d = User.register_user("Dan", "Sanger", "sangerco@yahoo.com", "dan", "password", None)
-p = User.register_user("Philly", "Phil", 'philly@phil.com', 'philly_phil', 'password', None)
-ca = User.register_user('Cassie', 'TheCat', 'cassiethecat@meowmeow.com', 'cassie_the_cat', 'password', None)
-ch = User.register_user("Charlie", 'TheDog', 'charlie_the_dog@arfarf.org', 'charlie_the_dog', 'password', None)
+d = User.register_user("Dan", "Sanger", "sangerco@yahoo.com", "dan", "password", 'https://media.licdn.com/dms/image/C5103AQFagQXogJWzyA/profile-displayphoto-shrink_400_400/0/1516950156724?e=1678320000&v=beta&t=vR6h2i2o3JsnSsOX3jc64IgONjNM5A_ngRxeUuTA_Vg')
+p = User.register_user("Philly", "Phil", 'philly@phil.com', 'philly_phil', 'password', 'https://media.newyorker.com/photos/59095d3c1c7a8e33fb38c2c6/master/w_1920,c_limit/Larson-Hartman-2.jpg')
+ca = User.register_user('Cassie', 'TheCat', 'cassiethecat@meowmeow.com', 'cassie_the_cat', 'password', 'https://i.pinimg.com/originals/08/2a/ac/082aac43b07fdc84d2a73dc4d2709a74.jpg')
+ch = User.register_user("Charlie", 'TheDog', 'charlie_the_dog@arfarf.org', 'charlie_the_dog', 'password', 'https://www.allthingsdogs.com/wp-content/uploads/2020/07/a-photo-of-a-cute-chocolate-labrador-with-head-tilted.jpg')
 
 db.session.add_all([d,p,ca,ch])
 db.session.commit()
